@@ -72,9 +72,9 @@ export function logout() {
  * Register new user and auto-login
  */
 export async function register(
-  email: string, 
-  password: string, 
-  passwordConfirm: string, 
+  email: string,
+  password: string,
+  passwordConfirm: string,
   additionalData?: Record<string, any>
 ) {
   await pb.collection('users').create({
@@ -83,7 +83,7 @@ export async function register(
     passwordConfirm,
     ...additionalData,
   })
-  
+
   // Auto-login after registration
   return await login(email, password)
 }
@@ -94,7 +94,7 @@ export async function register(
  */
 export async function refreshAuth() {
   if (!pb.authStore.isValid) return false
-  
+
   try {
     // Check if the current auth is for an admin (admins have a different structure)
     const record = pb.authStore.record
@@ -163,7 +163,8 @@ export async function getFirstListItem<T = any>(collection: string, filter: stri
  * Create a new record
  */
 export async function create<T = any>(collection: string, data: any) {
-  return await pb.collection(collection).create<T>(data)
+  const result = await pb.collection(collection).create<T>(data)
+  return result
 }
 
 /**

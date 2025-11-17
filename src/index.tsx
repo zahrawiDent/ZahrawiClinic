@@ -1,9 +1,10 @@
 /* @refresh reload */
 import { render } from 'solid-js/web'
 import { RouterProvider, createRouter } from '@tanstack/solid-router'
-import { QueryClient, QueryClientProvider } from '@tanstack/solid-query'
+import { QueryClientProvider } from '@tanstack/solid-query'
 import { AuthProvider } from './lib/auth-context'
 import { isAuthenticated, currentUser } from './lib/pocketbase'
+import { queryClient } from './lib/query-client'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
@@ -16,16 +17,6 @@ export interface RouterContext {
     user: () => any
   }
 }
-
-// Create QueryClient for TanStack Query
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-})
 
 // Create a new router instance with auth context
 const router = createRouter({ 

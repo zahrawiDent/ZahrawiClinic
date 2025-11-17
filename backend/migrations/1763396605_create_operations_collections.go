@@ -45,8 +45,9 @@ func init() {
 				Max:  2000,
 			},
 			&core.BoolField{
-				Name:     "completed",
-				Required: true,
+				Name: "completed",
+				// Note: Not marking as Required because PocketBase treats false as "blank"
+				// The field will default to false if not provided
 			},
 			&core.SelectField{
 				Name:      "priority",

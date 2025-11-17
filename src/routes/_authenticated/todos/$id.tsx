@@ -6,7 +6,7 @@ import { PageLayout, PageContainer, Card } from "@/components/ui"
 import { Breadcrumbs } from "@/components/breadcrumbs"
 import { BackButton } from "@/components/back-button"
 import { pb } from "@/lib/pocketbase"
-import { queryClient } from "@/index"
+import { queryClient } from "@/lib/query-client"
 
 export const Route = createFileRoute("/_authenticated/todos/$id")({
   component: TodoDetailPage,
