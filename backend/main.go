@@ -11,7 +11,6 @@ import (
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
-	"zahrawiclinic.com/hooks"
 	_ "zahrawiclinic.com/migrations"
 )
 
@@ -22,7 +21,6 @@ var distFiles embed.FS
 
 func main() {
 	app := pocketbase.New()
-	hooks.RegisterPatientDeleteHook(app)
 
 	var DistDirFS, _ = fs.Sub(distFiles, "dist")
 

@@ -213,9 +213,10 @@ func init() {
 
 		medicalHistory.Fields.Add(
 			&core.RelationField{
-				Name:         "patient",
-				Required:     true,
-				CollectionId: patients.Id,
+				Name:          "patient",
+				Required:      true,
+				CollectionId:  patients.Id,
+				CascadeDelete: true,
 			},
 			&core.RelationField{
 				Name:         "recordedBy",

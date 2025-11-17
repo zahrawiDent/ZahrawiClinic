@@ -51,9 +51,10 @@ func init() {
 
 		invoices.Fields.Add(
 			&core.RelationField{
-				Name:         "patient",
-				Required:     true,
-				CollectionId: patients.Id,
+				Name:          "patient",
+				Required:      true,
+				CollectionId:  patients.Id,
+				CascadeDelete: true,
 			},
 			&core.RelationField{
 				Name:         "appointment",
@@ -227,9 +228,10 @@ func init() {
 
 		payments.Fields.Add(
 			&core.RelationField{
-				Name:         "patient",
-				Required:     true,
-				CollectionId: patients.Id,
+				Name:          "patient",
+				Required:      true,
+				CollectionId:  patients.Id,
+				CascadeDelete: true,
 			},
 			&core.RelationField{
 				Name:         "invoice",
@@ -295,9 +297,10 @@ func init() {
 
 		insuranceClaims.Fields.Add(
 			&core.RelationField{
-				Name:         "patient",
-				Required:     true,
-				CollectionId: patients.Id,
+				Name:          "patient",
+				Required:      true,
+				CollectionId:  patients.Id,
+				CascadeDelete: true,
 			},
 			&core.RelationField{
 				Name:         "insurance",

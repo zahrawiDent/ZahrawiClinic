@@ -99,9 +99,10 @@ func init() {
 
 		treatments.Fields.Add(
 			&core.RelationField{
-				Name:         "patient",
-				Required:     true,
-				CollectionId: patients.Id,
+				Name:          "patient",
+				Required:      true,
+				CollectionId:  patients.Id,
+				CascadeDelete: true,
 			},
 			&core.RelationField{
 				Name:         "appointment",
@@ -176,9 +177,10 @@ func init() {
 
 		treatmentPlans.Fields.Add(
 			&core.RelationField{
-				Name:         "patient",
-				Required:     true,
-				CollectionId: patients.Id,
+				Name:          "patient",
+				Required:      true,
+				CollectionId:  patients.Id,
+				CascadeDelete: true,
 			},
 			&core.RelationField{
 				Name:         "createdBy",
@@ -332,9 +334,10 @@ func init() {
 
 		prescriptions.Fields.Add(
 			&core.RelationField{
-				Name:         "patient",
-				Required:     true,
-				CollectionId: patients.Id,
+				Name:          "patient",
+				Required:      true,
+				CollectionId:  patients.Id,
+				CascadeDelete: true,
 			},
 			&core.RelationField{
 				Name:         "prescribedBy",
@@ -421,9 +424,10 @@ func init() {
 
 		dentalChart.Fields.Add(
 			&core.RelationField{
-				Name:         "patient",
-				Required:     true,
-				CollectionId: patients.Id,
+				Name:          "patient",
+				Required:      true,
+				CollectionId:  patients.Id,
+				CascadeDelete: true,
 			},
 			&core.TextField{
 				Name:     "toothNumber",
