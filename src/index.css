@@ -1,0 +1,452 @@
+@import "tailwindcss";
+
+/* Configure dark mode to use class-based approach */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ========================================
+   Tailwind v4 CSS Variables Configuration
+   Using OKLCH color format for better color manipulation
+   ======================================== */
+
+@theme {
+  /* Background Colors */
+  --color-bg-primary: oklch(100% 0 0);
+  /* white */
+  --color-bg-secondary: oklch(98.5% 0.002 247.839);
+  /* gray-50 */
+  --color-bg-tertiary: oklch(96.7% 0.003 264.542);
+  /* gray-100 */
+  --color-bg-elevated: oklch(100% 0 0);
+  /* white */
+
+  /* Text Colors */
+  --color-text-primary: oklch(21% 0.034 264.665);
+  /* gray-900 */
+  --color-text-secondary: oklch(44.6% 0.03 256.802);
+  /* gray-600 */
+  --color-text-tertiary: oklch(55.1% 0.027 264.364);
+  /* gray-500 */
+  --color-text-inverse: oklch(100% 0 0);
+  /* white */
+
+  /* Border Colors */
+  --color-border-primary: oklch(92.8% 0.006 264.531);
+  /* gray-200 */
+  --color-border-secondary: oklch(87.2% 0.01 258.338);
+  /* gray-300 */
+  --color-border-focus: oklch(62.3% 0.214 259.815);
+  /* blue-500 */
+
+  /* Brand Colors */
+  --color-brand-primary: oklch(54.6% 0.245 262.881);
+  /* blue-600 */
+  --color-brand-primary-hover: oklch(48.8% 0.243 264.376);
+  /* blue-700 */
+  --color-brand-secondary: oklch(55.8% 0.288 302.321);
+  /* purple-600 */
+  --color-brand-secondary-hover: oklch(49.6% 0.265 301.924);
+  /* purple-700 */
+
+  /* Semantic Colors - Success */
+  --color-success: oklch(62.7% 0.194 149.214);
+  /* green-600 */
+  --color-success-hover: oklch(52.7% 0.154 150.069);
+  /* green-700 */
+  --color-success-bg: oklch(98.2% 0.018 155.826);
+  /* green-50 */
+  --color-success-border: oklch(92.5% 0.084 155.995);
+  /* green-200 */
+  --color-success-text: oklch(44.8% 0.119 151.328);
+  /* green-800 */
+
+  /* Semantic Colors - Error/Danger */
+  --color-error: oklch(63.7% 0.237 25.331);
+  /* red-500 */
+  --color-error-hover: oklch(57.7% 0.245 27.325);
+  /* red-600 */
+  --color-error-bg: oklch(97.1% 0.013 17.38);
+  /* red-50 */
+  --color-error-border: oklch(88.5% 0.062 18.334);
+  /* red-200 */
+  --color-error-text: oklch(44.4% 0.177 26.899);
+  /* red-800 */
+
+  /* Semantic Colors - Warning */
+  --color-warning: oklch(76.9% 0.188 70.08);
+  /* amber-500 */
+  --color-warning-hover: oklch(66.6% 0.179 58.318);
+  /* amber-600 */
+  --color-warning-bg: oklch(98.7% 0.022 95.277);
+  /* amber-50 */
+  --color-warning-border: oklch(92.4% 0.12 95.746);
+  /* amber-200 */
+  --color-warning-text: oklch(47.3% 0.137 46.201);
+  /* amber-800 */
+
+  /* Semantic Colors - Info */
+  --color-info: oklch(62.3% 0.214 259.815);
+  /* blue-500 */
+  --color-info-hover: oklch(54.6% 0.245 262.881);
+  /* blue-600 */
+  --color-info-bg: oklch(97% 0.014 254.604);
+  /* blue-50 */
+  --color-info-border: oklch(88.2% 0.059 254.128);
+  /* blue-200 */
+  --color-info-text: oklch(42.4% 0.199 265.638);
+  /* blue-800 */
+
+  /* Accent Colors */
+  --color-accent-purple: oklch(55.8% 0.288 302.321);
+  /* purple-600 */
+  --color-accent-purple-hover: oklch(49.6% 0.265 301.924);
+  /* purple-700 */
+  --color-accent-orange: oklch(64.6% 0.222 41.116);
+  /* orange-600 */
+  --color-accent-orange-hover: oklch(55.3% 0.195 38.402);
+  /* orange-700 */
+  --color-accent-pink: oklch(59.2% 0.249 0.584);
+  /* pink-600 */
+  --color-accent-pink-hover: oklch(52.5% 0.223 3.958);
+  /* pink-700 */
+
+  /* Gradient Colors */
+  --gradient-primary-from: oklch(97% 0.014 254.604);
+  /* blue-50 */
+  --gradient-primary-to: oklch(93.2% 0.032 255.585);
+  /* blue-100 */
+  --gradient-secondary-from: oklch(97.7% 0.014 308.299);
+  /* purple-50 */
+  --gradient-secondary-to: oklch(94.6% 0.033 307.174);
+  /* purple-100 */
+  --gradient-accent-from: oklch(98.7% 0.022 95.277);
+  /* amber-50 */
+  --gradient-accent-to: oklch(97.1% 0.013 17.38);
+  /* red-50 */
+}
+
+/* Dark Mode Color Variables */
+.dark {
+  /* Background Colors */
+  --color-bg-primary: oklch(27.8% 0.033 256.848);
+  /* gray-800 */
+  --color-bg-secondary: oklch(21% 0.034 264.665);
+  /* gray-900 */
+  --color-bg-tertiary: oklch(20.8% 0.042 265.755);
+  /* slate-900 */
+  --color-bg-elevated: oklch(37.3% 0.034 259.733);
+  /* gray-700 */
+
+  /* Text Colors */
+  --color-text-primary: oklch(96.7% 0.003 264.542);
+  /* gray-100 */
+  --color-text-secondary: oklch(87.2% 0.01 258.338);
+  /* gray-300 */
+  --color-text-tertiary: oklch(70.7% 0.022 261.325);
+  /* gray-400 */
+  --color-text-inverse: oklch(21% 0.034 264.665);
+  /* gray-900 */
+
+  /* Border Colors */
+  --color-border-primary: oklch(37.3% 0.034 259.733);
+  /* gray-700 */
+  --color-border-secondary: oklch(44.6% 0.03 256.802);
+  /* gray-600 */
+  --color-border-focus: oklch(70.7% 0.165 254.624);
+  /* blue-400 */
+
+  /* Brand Colors */
+  --color-brand-primary: oklch(70.7% 0.165 254.624);
+  /* blue-400 */
+  --color-brand-primary-hover: oklch(62.3% 0.214 259.815);
+  /* blue-500 */
+  --color-brand-secondary: oklch(71.4% 0.203 305.504);
+  /* purple-400 */
+  --color-brand-secondary-hover: oklch(62.7% 0.265 303.9);
+  /* purple-500 */
+
+  /* Semantic Colors - Success */
+  --color-success: oklch(79.2% 0.209 151.711);
+  /* green-400 */
+  --color-success-hover: oklch(72.3% 0.219 149.579);
+  /* green-500 */
+  --color-success-bg: oklch(26.6% 0.065 152.934 / 0.2);
+  /* green-950 with alpha */
+  --color-success-border: oklch(26.6% 0.065 152.934);
+  /* green-950 */
+  --color-success-text: oklch(87.1% 0.15 154.449);
+  /* green-300 */
+
+  /* Semantic Colors - Error/Danger */
+  --color-error: oklch(70.4% 0.191 22.216);
+  /* red-400 */
+  --color-error-hover: oklch(63.7% 0.237 25.331);
+  /* red-500 */
+  --color-error-bg: oklch(25.8% 0.092 26.042 / 0.2);
+  /* red-950 with alpha */
+  --color-error-border: oklch(25.8% 0.092 26.042);
+  /* red-950 */
+  --color-error-text: oklch(88.5% 0.062 18.334);
+  /* red-200 */
+
+  /* Semantic Colors - Warning */
+  --color-warning: oklch(82.8% 0.189 84.429);
+  /* amber-400 */
+  --color-warning-hover: oklch(76.9% 0.188 70.08);
+  /* amber-500 */
+  --color-warning-bg: oklch(27.9% 0.077 45.635 / 0.2);
+  /* amber-950 with alpha */
+  --color-warning-border: oklch(27.9% 0.077 45.635);
+  /* amber-950 */
+  --color-warning-text: oklch(92.4% 0.12 95.746);
+  /* amber-200 */
+
+  /* Semantic Colors - Info */
+  --color-info: oklch(70.7% 0.165 254.624);
+  /* blue-400 */
+  --color-info-hover: oklch(62.3% 0.214 259.815);
+  /* blue-500 */
+  --color-info-bg: oklch(28.2% 0.091 267.935 / 0.2);
+  /* blue-950 with alpha */
+  --color-info-border: oklch(28.2% 0.091 267.935);
+  /* blue-950 */
+  --color-info-text: oklch(88.2% 0.059 254.128);
+  /* blue-200 */
+
+  /* Accent Colors */
+  --color-accent-purple: oklch(71.4% 0.203 305.504);
+  /* purple-400 */
+  --color-accent-purple-hover: oklch(62.7% 0.265 303.9);
+  /* purple-500 */
+  --color-accent-orange: oklch(75% 0.183 55.934);
+  /* orange-400 */
+  --color-accent-orange-hover: oklch(70.5% 0.213 47.604);
+  /* orange-500 */
+  --color-accent-pink: oklch(71.8% 0.202 349.761);
+  /* pink-400 */
+  --color-accent-pink-hover: oklch(65.6% 0.241 354.308);
+  /* pink-500 */
+
+  /* Gradient Colors */
+  --gradient-primary-from: oklch(21% 0.034 264.665);
+  /* gray-900 */
+  --gradient-primary-to: oklch(27.8% 0.033 256.848);
+  /* gray-800 */
+  --gradient-secondary-from: oklch(21% 0.034 264.665);
+  /* gray-900 */
+  --gradient-secondary-to: oklch(29.1% 0.149 302.717 / 0.1);
+  /* purple-950 with alpha */
+  --gradient-accent-from: oklch(27.8% 0.033 256.848);
+  /* gray-800 */
+  --gradient-accent-to: oklch(37.3% 0.034 259.733);
+  /* gray-700 */
+}
+
+/* ========================================
+   Markdown Prose Styling
+   ======================================== */
+
+.prose {
+  color: var(--color-text-primary);
+  max-width: 65ch;
+}
+
+.prose h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 0;
+  margin-bottom: 0.875em;
+  color: var(--color-text-primary);
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-primary);
+  padding-bottom: 0.3em;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+  color: var(--color-text-primary);
+}
+
+.prose h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: var(--color-text-primary);
+}
+
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  line-height: 1.75;
+}
+
+.prose a {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.prose a:hover {
+  color: var(--color-brand-primary-hover);
+}
+
+.prose strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.prose code {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.prose pre {
+  background: var(--color-bg-tertiary);
+  overflow-x: auto;
+  padding: 1em;
+  border-radius: 0.5rem;
+  margin-top: 1.75em;
+  margin-bottom: 1.75em;
+  border: 1px solid var(--color-border-primary);
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.875em;
+  line-height: 1.7;
+}
+
+.prose ul, .prose ol {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.75;
+}
+
+.prose blockquote {
+  font-weight: 500;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  border-left: 0.25rem solid var(--color-border-secondary);
+  padding-left: 1em;
+  margin-top: 1.6em;
+  margin-bottom: 1.6em;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-border-primary);
+  margin-top: 3em;
+  margin-bottom: 3em;
+}
+
+.prose table {
+  width: 100%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-collapse: collapse;
+}
+
+.prose thead {
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.prose th {
+  padding: 0.75em 1em;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.prose td {
+  padding: 0.75em 1em;
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+/* Mermaid diagrams */
+.mermaid-diagram {
+  margin: 2em 0;
+  display: flex;
+  justify-content: center;
+  padding: 1em;
+  background: var(--color-bg-secondary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border-primary);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mermaid-diagram:hover {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-diagram::after {
+  content: "Click to zoom";
+  position: absolute;
+  bottom: 0.5em;
+  right: 0.5em;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-elevated);
+  padding: 0.25em 0.5em;
+  border-radius: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.mermaid-diagram:hover::after {
+  opacity: 1;
+}
+
+/* Mermaid modal content */
+.mermaid-modal-content {
+  transform-origin: center center;
+  user-select: none;
+}
+
+.mermaid-modal-content svg {
+  max-width: none;
+  height: auto;
+}
+
