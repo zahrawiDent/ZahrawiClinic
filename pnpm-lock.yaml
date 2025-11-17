@@ -50,6 +50,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.17
         version: 4.1.17
+      valibot:
+        specifier: ^1.1.0
+        version: 1.1.0(typescript@5.9.3)
     devDependencies:
       '@tanstack/router-plugin':
         specifier: ^1.136.6
@@ -1685,6 +1688,14 @@ packages:
   uuid@11.1.0:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
     hasBin: true
+
+  valibot@1.1.0:
+    resolution: {integrity: sha512-Nk8lX30Qhu+9txPYTwM0cFlWLdPFsFr6LblzqIySfbZph9+BFsAHsNvHOymEviUepeIW6KFHzpX8TKhbptBXXw==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   vite-plugin-solid@2.11.10:
     resolution: {integrity: sha512-Yr1dQybmtDtDAHkii6hXuc1oVH9CPcS/Zb2jN/P36qqcrkNnVPsMTzQ06jyzFPFjj3U1IYKMVt/9ZqcwGCEbjw==}
@@ -3378,6 +3389,10 @@ snapshots:
       picocolors: 1.1.1
 
   uuid@11.1.0: {}
+
+  valibot@1.1.0(typescript@5.9.3):
+    optionalDependencies:
+      typescript: 5.9.3
 
   vite-plugin-solid@2.11.10(rolldown-vite@7.2.2(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6))(solid-js@1.9.10):
     dependencies:

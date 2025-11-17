@@ -1,73 +1,91 @@
-import { createFileRoute, useNavigate } from "@tanstack/solid-router"
-import { createSignal } from "solid-js"
-import { useCreateRecord } from "@/lib/queries"
-import { toast } from "@/components/toast"
-import { PageLayout, PageContainer, PageHeader, Card, InfoBox, FormField, FormActions, Button } from "@/components/ui"
-import { Breadcrumbs } from "@/components/breadcrumbs"
+import { createFileRoute, useNavigate } from '@tanstack/solid-router'
+import { createForm } from '@tanstack/solid-form'
+import * as v from 'valibot'
+import { useCreateRecord } from '@/lib/queries'
+import { toast } from '@/components/toast'
+import { PageLayout, PageContainer, PageHeader, Card, InfoBox, Button } from '@/components/ui'
+import { Breadcrumbs } from '@/components/breadcrumbs'
+import {
+  FormContainer,
+  FormGroup,
+  FormActions,
+  FormInput,
+  FormTextarea,
+  FormSelect,
+  FormDivider,
+} from '@/components/forms'
+import { valibotValidator } from '@/lib/form-utils'
+import {
+  nameSchema,
+  optionalPhoneSchema,
+  optionalEmailSchema,
+} from '@/lib/validation-schemas'
 
-export const Route = createFileRoute("/_authenticated/patients/new")({
+export const Route = createFileRoute('/_authenticated/patients/new')({
   component: AddPatientPage,
+})
+
+// Define the form schema
+const newPatientSchema = v.object({
+  firstName: nameSchema,
+  lastName: nameSchema,
+  dateOfBirth: v.optional(v.string()),
+  gender: v.optional(
+    v.picklist(['male', 'female', 'other', 'prefer_not_to_say'])
+  ),
+  email: optionalEmailSchema,
+  phone: optionalPhoneSchema,
+  mobile: optionalPhoneSchema,
+  status: v.picklist(['active', 'inactive', 'archived']),
+  notes: v.optional(v.string()),
 })
 
 function AddPatientPage() {
   const navigate = useNavigate()
-  const [firstName, setFirstName] = createSignal("")
-  const [lastName, setLastName] = createSignal("")
-  const [dateOfBirth, setDateOfBirth] = createSignal("")
-  const [gender, setGender] = createSignal("")
-  const [email, setEmail] = createSignal("")
-  const [phone, setPhone] = createSignal("")
-  const [mobile, setMobile] = createSignal("")
-  const [status, setStatus] = createSignal("active")
-  const [notes, setNotes] = createSignal("")
+  const createPatient = useCreateRecord('patients')
 
-  const createPatient = useCreateRecord("patients")
+  const form = createForm(() => ({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      dateOfBirth: '',
+      gender: undefined as 'male' | 'female' | 'other' | 'prefer_not_to_say' | undefined,
+      email: '',
+      phone: '',
+      mobile: '',
+      status: 'active' as 'active' | 'inactive' | 'archived',
+      notes: '',
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        // Validate the form data
+        const validatedData = v.parse(newPatientSchema, value)
 
-  const handleSubmit = (e: Event) => {
-    e.preventDefault()
+        // Create patient with optimistic update
+        createPatient.mutate(validatedData, {
+          onSuccess: () => {
+            toast.success('Patient added successfully! 🎉')
+          },
+          onError: (err: any) => {
+            toast.error(err?.message || 'Failed to add patient')
+          },
+        })
 
-    if (!firstName().trim() || !lastName().trim()) {
-      toast.error("Please enter patient first and last name")
-      return
-    }
-
-    const patientData = {
-      firstName: firstName().trim(),
-      lastName: lastName().trim(),
-      dateOfBirth: dateOfBirth() || undefined,
-      gender: gender() || undefined,
-      email: email().trim() || undefined,
-      phone: phone().trim() || undefined,
-      mobile: mobile().trim() || undefined,
-      status: status() || "active",
-      notes: notes().trim() || undefined,
-    }
-
-    // Use optimistic update - navigate immediately!
-    createPatient.mutate(
-      patientData,
-      {
-        onSuccess: () => {
-          toast.success("Patient added successfully! 🎉")
-        },
-        onError: (err: any) => {
-          toast.error(err?.message || "Failed to add patient")
-        },
+        // Navigate immediately (optimistic UI)
+        navigate({ to: '/patients' })
+      } catch (error: any) {
+        toast.error(error?.message || 'Please check your input')
       }
-    )
-
-    // Navigate immediately (optimistic UI)
-    navigate({ to: "/patients" })
-  }
+    },
+  }))
 
   const handleCancel = () => {
-    navigate({ to: "/patients" })
+    navigate({ to: '/patients' })
   }
 
   return (
     <PageLayout>
       <PageContainer size="sm" padding>
-        {/* Breadcrumbs Navigation */}
         <div class="mb-4">
           <Breadcrumbs separator="›" />
         </div>
@@ -78,142 +96,187 @@ function AddPatientPage() {
         />
 
         <Card>
-          <form onSubmit={handleSubmit} class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                id="firstName"
-                label="First Name"
-                type="text"
-                required
-                placeholder="Enter first name"
-                value={firstName()}
-                onInput={(e) => setFirstName(e.currentTarget.value)}
-                helperText="Patient's first name"
+          <FormContainer
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              form.handleSubmit()
+            }}
+          >
+            <FormGroup title="Personal Information" columns={2}>
+              <form.Field
+                name="firstName"
+                validators={{
+                  onChange: valibotValidator(nameSchema),
+                }}
+                children={(field) => (
+                  <FormInput
+                    field={field()}
+                    label="First Name"
+                    placeholder="Enter first name"
+                    required
+                  />
+                )}
               />
 
-              <FormField
-                id="lastName"
-                label="Last Name"
-                type="text"
-                required
-                placeholder="Enter last name"
-                value={lastName()}
-                onInput={(e) => setLastName(e.currentTarget.value)}
-                helperText="Patient's last name"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                id="dateOfBirth"
-                label="Date of Birth"
-                type="date"
-                placeholder="Select date"
-                value={dateOfBirth()}
-                onInput={(e) => setDateOfBirth(e.currentTarget.value)}
-                helperText="Patient's date of birth"
+              <form.Field
+                name="lastName"
+                validators={{
+                  onChange: valibotValidator(nameSchema),
+                }}
+                children={(field) => (
+                  <FormInput
+                    field={field()}
+                    label="Last Name"
+                    placeholder="Enter last name"
+                    required
+                  />
+                )}
               />
 
-              <div>
-                <label for="gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Gender
-                </label>
-                <select
-                  id="gender"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  value={gender()}
-                  onInput={(e) => setGender(e.currentTarget.value)}
-                >
-                  <option value="">Select gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                  <option value="prefer_not_to_say">Prefer not to say</option>
-                </select>
-              </div>
-            </div>
-
-            <FormField
-              id="email"
-              label="Email"
-              type="email"
-              placeholder="patient@example.com"
-              value={email()}
-              onInput={(e) => setEmail(e.currentTarget.value)}
-              helperText="Patient's email address"
-            />
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                id="phone"
-                label="Phone"
-                type="tel"
-                placeholder="Enter phone number"
-                value={phone()}
-                onInput={(e) => setPhone(e.currentTarget.value)}
-                helperText="Home or office phone"
+              <form.Field
+                name="dateOfBirth"
+                children={(field) => (
+                  <FormInput
+                    field={field()}
+                    label="Date of Birth"
+                    type="date"
+                  />
+                )}
               />
 
-              <FormField
-                id="mobile"
-                label="Mobile"
-                type="tel"
-                placeholder="Enter mobile number"
-                value={mobile()}
-                onInput={(e) => setMobile(e.currentTarget.value)}
-                helperText="Mobile phone number"
+              <form.Field
+                name="gender"
+                children={(field) => (
+                  <FormSelect
+                    field={field()}
+                    label="Gender"
+                    placeholder="Select gender"
+                    options={[
+                      { value: 'male', label: 'Male' },
+                      { value: 'female', label: 'Female' },
+                      { value: 'other', label: 'Other' },
+                      { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+                    ]}
+                  />
+                )}
               />
-            </div>
+            </FormGroup>
 
-            <div>
-              <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Status
-              </label>
-              <select
-                id="status"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                value={status()}
-                onInput={(e) => setStatus(e.currentTarget.value)}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="archived">Archived</option>
-              </select>
-            </div>
+            <FormDivider />
 
-            <div>
-              <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Notes
-              </label>
-              <textarea
-                id="notes"
-                rows="4"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Additional notes about the patient..."
-                value={notes()}
-                onInput={(e) => setNotes(e.currentTarget.value)}
+            <FormGroup title="Contact Information" columns={2}>
+              <form.Field
+                name="email"
+                validators={{
+                  onChange: valibotValidator(optionalEmailSchema),
+                }}
+                children={(field) => (
+                  <FormInput
+                    field={field()}
+                    label="Email"
+                    type="email"
+                    placeholder="patient@example.com"
+                    autoComplete="email"
+                  />
+                )}
               />
-              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Optional patient notes</p>
-            </div>
 
-            <FormActions>
+              <form.Field
+                name="phone"
+                validators={{
+                  onChange: valibotValidator(optionalPhoneSchema),
+                }}
+                children={(field) => (
+                  <FormInput
+                    field={field()}
+                    label="Phone"
+                    type="tel"
+                    placeholder="(123) 456-7890"
+                    autoComplete="tel"
+                  />
+                )}
+              />
+
+              <form.Field
+                name="mobile"
+                validators={{
+                  onChange: valibotValidator(optionalPhoneSchema),
+                }}
+                children={(field) => (
+                  <FormInput
+                    field={field()}
+                    label="Mobile"
+                    type="tel"
+                    placeholder="(123) 456-7890"
+                    autoComplete="tel"
+                  />
+                )}
+              />
+
+              <form.Field
+                name="status"
+                children={(field) => (
+                  <FormSelect
+                    field={field()}
+                    label="Status"
+                    placeholder="Select status"
+                    required
+                    options={[
+                      { value: 'active', label: 'Active' },
+                      { value: 'inactive', label: 'Inactive' },
+                      { value: 'archived', label: 'Archived' },
+                    ]}
+                  />
+                )}
+              />
+            </FormGroup>
+
+            <FormDivider />
+
+            <FormGroup title="Additional Information">
+              <form.Field
+                name="notes"
+                children={(field) => (
+                  <FormTextarea
+                    field={field()}
+                    label="Notes"
+                    placeholder="Additional notes about the patient..."
+                    rows={4}
+                  />
+                )}
+              />
+            </FormGroup>
+
+            <FormActions align="between">
               <Button
-                type="submit"
-                variant="primary"
-                disabled={createPatient.isPending}
-                class="flex-1"
-              >
-                Add Patient
-              </Button>
-              <Button
+                type="button"
                 variant="secondary"
                 onClick={handleCancel}
                 disabled={createPatient.isPending}
               >
                 Cancel
               </Button>
+
+              <form.Subscribe
+                selector={(state) => ({
+                  canSubmit: state.canSubmit,
+                  isSubmitting: state.isSubmitting,
+                })}
+                children={(state) => (
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={!state().canSubmit || createPatient.isPending}
+                  >
+                    {state().isSubmitting || createPatient.isPending
+                      ? 'Adding...'
+                      : 'Add Patient'}
+                  </Button>
+                )}
+              />
             </FormActions>
-          </form>
+          </FormContainer>
         </Card>
 
         <div class="mt-6">
@@ -229,4 +292,3 @@ function AddPatientPage() {
     </PageLayout>
   )
 }
-
