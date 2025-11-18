@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DentalChartEnhancedRouteImport } from './routes/dental-chart-enhanced'
 import { Route as DentalChartRouteImport } from './routes/dental-chart'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -30,6 +31,11 @@ import { Route as AuthenticatedPatientsNewRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPatientsIdRouteImport } from './routes/_authenticated/patients/$id'
 import { Route as AuthenticatedPatientsIdEditRouteImport } from './routes/_authenticated/patients/$id.edit'
 
+const DentalChartEnhancedRoute = DentalChartEnhancedRouteImport.update({
+  id: '/dental-chart-enhanced',
+  path: '/dental-chart-enhanced',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DentalChartRoute = DentalChartRouteImport.update({
   id: '/dental-chart',
   path: '/dental-chart',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dental-chart': typeof DentalChartRoute
+  '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/appointments': typeof AuthenticatedAppointmentsRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dental-chart': typeof DentalChartRoute
+  '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/appointments': typeof AuthenticatedAppointmentsRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/dental-chart': typeof DentalChartRoute
+  '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_authenticated/appointments': typeof AuthenticatedAppointmentsRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dental-chart'
+    | '/dental-chart-enhanced'
     | '/login'
     | '/signup'
     | '/appointments'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dental-chart'
+    | '/dental-chart-enhanced'
     | '/login'
     | '/signup'
     | '/appointments'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/dental-chart'
+    | '/dental-chart-enhanced'
     | '/_auth/login'
     | '/_auth/signup'
     | '/_authenticated/appointments'
@@ -272,12 +284,20 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   DentalChartRoute: typeof DentalChartRoute
+  DentalChartEnhancedRoute: typeof DentalChartEnhancedRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
 }
 
 declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
+    '/dental-chart-enhanced': {
+      id: '/dental-chart-enhanced'
+      path: '/dental-chart-enhanced'
+      fullPath: '/dental-chart-enhanced'
+      preLoaderRoute: typeof DentalChartEnhancedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dental-chart': {
       id: '/dental-chart'
       path: '/dental-chart'
@@ -476,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   DentalChartRoute: DentalChartRoute,
+  DentalChartEnhancedRoute: DentalChartEnhancedRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
 }

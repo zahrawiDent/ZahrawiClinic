@@ -1,9 +1,10 @@
 /**
  * Interactive Tooth Component
  * Displays a single tooth with clickable surfaces and visual indicators
+ * Enhanced with better visual design and surface interaction
  */
 
-import { type Component, Show } from 'solid-js';
+import { type Component, Show, For, createMemo } from 'solid-js';
 import type { Tooth, ToothSurface, ToothCondition, NumberingSystem } from '../../types/dental-chart';
 
 interface ToothProps {
