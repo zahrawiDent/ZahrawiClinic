@@ -9,7 +9,9 @@ import type {
   ProcedureStatus,
   PulpDiagnosis,
   PeriapicalDiagnosis,
-  MobilityGrade
+  MobilityGrade,
+  ICDASCode,
+  FurcationGrade
 } from '../../types/dental-chart';
 import { TOOTH_SURFACES } from '../../types/dental-chart';
 
@@ -39,6 +41,19 @@ const RCT_STAGES: RCTStage[] = ['indicated', 'access', 'instrumentation', 'obtur
 const PULP_DIAGNOSIS: PulpDiagnosis[] = ['normal', 'reversible_pulpitis', 'irreversible_pulpitis', 'necrotic', 'previously_treated'];
 const PERIAPICAL: PeriapicalDiagnosis[] = ['normal', 'symptomatic_apical_periodontitis', 'asymptomatic_apical_periodontitis', 'acute_apical_abscess', 'chronic_apical_abscess'];
 const MOBILITY: MobilityGrade[] = [0, 1, 2, 3];
+const ISOLATION_OPTIONS = ['rubber_dam', 'isovac', 'cotton_roll', 'dry_field'];
+const OPERATIVE_FLAGS = ['Recurrent decay', 'Open margin', 'Hypersensitive', 'Non-carious cervical', 'Secondary caries'];
+const PROSTHO_SHADES = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1'];
+const PROSTHO_MARGINS = ['deep_chamfer', 'shoulder', 'feather_edge'];
+const PONTIC_DESIGNS = ['ovate', 'modified ridge lap', 'sanitary'];
+const IMPLANT_SITE_OPTIONS = ['ideal', 'limited', 'compromised'];
+const ENDO_SYMPTOMS = ['Spontaneous pain', 'Lingering cold', 'Percussion sensitive', 'Palpation sensitive', 'Swelling'];
+const ENDO_IRRIGANTS = ['NaOCl', 'CHX', 'EDTA'];
+const ENDO_OBTURATION = ['GP + sealer', 'Warm vertical', 'Carrier based'];
+const PERIO_BLEEDING_SITES = ['MB', 'B', 'DB', 'ML', 'L', 'DL'];
+const SEDATION_OPTIONS = ['local', 'nitrous', 'oral', 'iv'];
+const FLAP_OPTIONS = ['envelope', 'triangular', 'papilla preservation'];
+const GRAFT_OPTIONS = ['none', 'allograft', 'autograft', 'xenograft', 'membrane'];
 
 export function SpecialtyComposer(props: SpecialtyComposerProps) {
   const [activeTab, setActiveTab] = createSignal<SpecialtyTab>('operative');
@@ -46,19 +61,38 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
   const [material, setMaterial] = createSignal<RestorationMaterial>('composite');
   const [cariesSeverity, setCariesSeverity] = createSignal<'early' | 'moderate' | 'advanced'>('moderate');
   const [operativeType, setOperativeType] = createSignal<'caries' | 'restoration' | 'fracture'>('caries');
+  const [operativeIsolation, setOperativeIsolation] = createSignal<string>('rubber_dam');
+  const [operativeIcdas, setOperativeIcdas] = createSignal<ICDASCode>(2);
+  const [operativeFlags, setOperativeFlags] = createSignal<string[]>([]);
 
   const [prosthoType, setProsthoType] = createSignal<'crown' | 'implant'>('crown');
   const [crownStyle, setCrownStyle] = createSignal<'full_crown' | 'onlay' | 'inlay'>('full_crown');
+  const [prosthoShade, setProsthoShade] = createSignal<string>('A2');
+  const [prosthoMarginStyle, setProsthoMarginStyle] = createSignal<string>('deep_chamfer');
+  const [ponticDesign, setPonticDesign] = createSignal<string>('ovate');
+  const [implantSiteQuality, setImplantSiteQuality] = createSignal<string>('ideal');
+  const [implantHealingTimeline, setImplantHealingTimeline] = createSignal<string>('8 weeks');
 
   const [endoStage, setEndoStage] = createSignal<RCTStage>('indicated');
   const [pulpDx, setPulpDx] = createSignal<PulpDiagnosis>('irreversible_pulpitis');
   const [periapicalDx, setPeriapicalDx] = createSignal<PeriapicalDiagnosis>('symptomatic_apical_periodontitis');
+  const [endoSymptoms, setEndoSymptoms] = createSignal<string[]>([]);
+  const [endoWorkingLength, setEndoWorkingLength] = createSignal<number>(19);
+  const [endoIrrigant, setEndoIrrigant] = createSignal<string>('NaOCl');
+  const [endoObturation, setEndoObturation] = createSignal<string>('GP + sealer');
 
   const [perioDiagnosis, setPerioDiagnosis] = createSignal<'healthy' | 'gingivitis' | 'periodontitis_slight' | 'periodontitis_moderate' | 'periodontitis_severe'>('gingivitis');
   const [mobilityGrade, setMobilityGrade] = createSignal<MobilityGrade>(1);
   const [boneLoss, setBoneLoss] = createSignal(10);
+  const [perioPocketDepth, setPerioPocketDepth] = createSignal<number>(4);
+  const [perioBleedingSites, setPerioBleedingSites] = createSignal<string[]>([]);
+  const [perioPlaqueScore, setPerioPlaqueScore] = createSignal<number>(35);
+  const [perioFurcation, setPerioFurcation] = createSignal<FurcationGrade>(0);
 
-  const [surgeryType, setSurgeryType] = createSignal<'extraction' | 'surgery'>('extraction');
+  const [surgeryPlan, setSurgeryPlan] = createSignal<'extraction' | 'apico' | 'bone_graft'>('extraction');
+  const [sedationMode, setSedationMode] = createSignal<string>('local');
+  const [flapDesign, setFlapDesign] = createSignal<string>('envelope');
+  const [graftMaterial, setGraftMaterial] = createSignal<string>('none');
   const [procedureStatus, setProcedureStatus] = createSignal<ProcedureStatus>('planned');
   const [procedureName, setProcedureName] = createSignal('');
   const [procedureNotes, setProcedureNotes] = createSignal('');
@@ -68,6 +102,14 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
       surfaces.includes(surface) ? surfaces.filter((s) => s !== surface) : [...surfaces, surface]
     );
   };
+
+  const toggleStringValue = (source: () => string[], setter: (next: string[]) => void, value: string) => {
+    setter(source().includes(value) ? source().filter((item) => item !== value) : [...source(), value]);
+  };
+
+  const toggleOperativeFlag = (flag: string) => toggleStringValue(operativeFlags, setOperativeFlags, flag);
+  const toggleEndoSymptom = (symptom: string) => toggleStringValue(endoSymptoms, setEndoSymptoms, symptom);
+  const toggleBleedingSite = (site: string) => toggleStringValue(perioBleedingSites, setPerioBleedingSites, site);
 
   const requireTooth = () => {
     if (!props.selectedTooth) {
@@ -83,13 +125,15 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
       alert('Choose at least one surface.');
       return;
     }
+    const note = `Isolation: ${operativeIsolation()} | Flags: ${operativeFlags().length ? operativeFlags().join(', ') : 'none'}`;
 
     if (operativeType() === 'caries') {
       props.onAddCondition({
         type: 'caries',
         surfaces: [...selectedSurfaces()],
         severity: cariesSeverity(),
-        notes: 'Auto-generated from v4 workspace'
+        icdas: operativeIcdas(),
+        notes: note
       });
     } else if (operativeType() === 'restoration') {
       props.onAddCondition({
@@ -97,14 +141,16 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
         surfaces: [...selectedSurfaces()],
         material: material(),
         condition: 'intact',
-        dateCompleted: new Date().toISOString().split('T')[0]
+        dateCompleted: new Date().toISOString().split('T')[0],
+        notes: note
       });
     } else {
       props.onAddCondition({
         type: 'fracture',
         surfaces: [...selectedSurfaces()],
         severity: 'enamel',
-        traumatic: true
+        traumatic: true,
+        notes: note
       });
     }
 
@@ -121,7 +167,8 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
         type: 'crown',
         crownType: crownStyle(),
         material: material(),
-        condition: 'intact'
+        condition: 'intact',
+        notes: `Shade: ${prosthoShade()} | Margin: ${prosthoMarginStyle()} | Pontic: ${ponticDesign()}`
       });
       setProcedureName(`Crown prep ${props.selectedTooth?.position.universal}`);
     } else {
@@ -129,7 +176,7 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
         type: 'implant',
         status: 'planned',
         component: 'fixture',
-        notes: 'Digitally planned fixture',
+        notes: `Site: ${implantSiteQuality()} | Healing: ${implantHealingTimeline()} | Shade: ${prosthoShade()}`,
         manufacturer: 'Universal',
         system: 'v4-guided'
       });
@@ -149,7 +196,9 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
       vitalityTest: {
         cold: 'positive',
         electric: 40
-      }
+      },
+      workingLength: { main: endoWorkingLength() },
+      notes: `Symptoms: ${endoSymptoms().length ? endoSymptoms().join(', ') : 'none'} | Irrigant: ${endoIrrigant()} | Obturation: ${endoObturation()}`
     });
     setProcedureName(`RCT ${props.selectedTooth?.position.universal}`);
     setProcedureStatus('in_progress');
@@ -162,7 +211,13 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
       diagnosis: perioDiagnosis(),
       mobility: mobilityGrade(),
       boneLoss: boneLoss(),
-      notes: 'Quick perio capture'
+      furcation: perioFurcation(),
+      plaqueScore: perioPlaqueScore(),
+      bleedingSites: [...perioBleedingSites()],
+      deepestPocket: perioPocketDepth(),
+      maintenancePhase: boneLoss() > 30 ? 'active' : 'maintenance',
+      bopNote: perioBleedingSites().length ? 'Active bleeding at recorded sites' : 'No bleeding on probing',
+      notes: `Deepest pocket ${perioPocketDepth()}mm | BOP: ${perioBleedingSites().join(', ') || 'none'}`
     });
     setProcedureName(`Perio therapy ${props.selectedTooth?.position.universal}`);
     setProcedureStatus('planned');
@@ -170,20 +225,32 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
 
   const handleAddSurgery = () => {
     if (!requireTooth()) return;
-    if (surgeryType() === 'extraction') {
+    const sharedNotes = `Sedation: ${sedationMode()} | Flap: ${flapDesign()} | Graft: ${graftMaterial()}`;
+
+    if (surgeryPlan() === 'extraction') {
       props.onAddCondition({
         type: 'extraction',
         extractionType: 'surgical',
-        status: 'planned'
+        status: 'planned',
+        notes: sharedNotes
       });
       setProcedureName(`Extraction ${props.selectedTooth?.position.universal}`);
-    } else {
+    } else if (surgeryPlan() === 'apico') {
       props.onAddCondition({
         type: 'surgery',
         procedure: 'apicoectomy',
-        status: 'planned'
+        status: 'planned',
+        notes: sharedNotes
       });
-      setProcedureName(`Surgery ${props.selectedTooth?.position.universal}`);
+      setProcedureName(`Apico ${props.selectedTooth?.position.universal}`);
+    } else {
+      props.onAddCondition({
+        type: 'surgery',
+        procedure: 'bone_graft',
+        status: 'planned',
+        notes: `${sharedNotes} | Healing timeline: ${implantHealingTimeline()}`
+      });
+      setProcedureName(`Bone graft ${props.selectedTooth?.position.universal}`);
     }
     setProcedureStatus('planned');
   };
@@ -246,24 +313,62 @@ export function SpecialtyComposer(props: SpecialtyComposerProps) {
             setCariesSeverity,
             operativeType,
             setOperativeType,
+            operativeIsolation,
+            setOperativeIsolation,
+            operativeIcdas,
+            setOperativeIcdas,
+            operativeFlags,
+            toggleOperativeFlag,
             prosthoType,
             setProsthoType,
             crownStyle,
             setCrownStyle,
+            prosthoShade,
+            setProsthoShade,
+            prosthoMarginStyle,
+            setProsthoMarginStyle,
+            ponticDesign,
+            setPonticDesign,
+            implantSiteQuality,
+            setImplantSiteQuality,
+            implantHealingTimeline,
+            setImplantHealingTimeline,
             endoStage,
             setEndoStage,
             pulpDx,
             setPulpDx,
             periapicalDx,
             setPeriapicalDx,
+            endoSymptoms,
+            toggleEndoSymptom,
+            endoWorkingLength,
+            setEndoWorkingLength,
+            endoIrrigant,
+            setEndoIrrigant,
+            endoObturation,
+            setEndoObturation,
             perioDiagnosis,
             setPerioDiagnosis,
             mobilityGrade,
             setMobilityGrade,
             boneLoss,
             setBoneLoss,
-            surgeryType,
-            setSurgeryType
+            perioPocketDepth,
+            setPerioPocketDepth,
+            perioBleedingSites,
+            toggleBleedingSite,
+            perioPlaqueScore,
+            setPerioPlaqueScore,
+            perioFurcation,
+            setPerioFurcation,
+            surgeryPlan,
+            setSurgeryPlan,
+            sedationMode,
+            setSedationMode,
+            flapDesign,
+            setFlapDesign,
+            graftMaterial,
+            setGraftMaterial
           }}
         />
 
@@ -471,7 +576,7 @@ function SwitchForm(props: SwitchFormProps) {
       );
     case 'perio':
       return (
-        <div class="space-y-4">
+        <div class="space-y-5">
           <div class="grid gap-3 md:grid-cols-3">
             <div>
               <label class="text-sm font-semibold">Diagnosis</label>
@@ -509,6 +614,60 @@ function SwitchForm(props: SwitchFormProps) {
               />
             </div>
           </div>
+
+          <div class="grid gap-3 md:grid-cols-3">
+            <div>
+              <label class="text-sm font-semibold">Deepest pocket (mm)</label>
+              <input
+                type="number"
+                min="0"
+                max="12"
+                class="mt-1 w-full rounded-xl border border-slate-200 p-2 text-sm dark:border-slate-700 dark:bg-slate-800"
+                value={props.state.perioPocketDepth()}
+                onInput={(e) => props.state.setPerioPocketDepth(Number(e.currentTarget.value))}
+              />
+            </div>
+            <div>
+              <label class="text-sm font-semibold">Plaque score %</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                class="mt-1 w-full rounded-xl border border-slate-200 p-2 text-sm dark:border-slate-700 dark:bg-slate-800"
+                value={props.state.perioPlaqueScore()}
+                onInput={(e) => props.state.setPerioPlaqueScore(Number(e.currentTarget.value))}
+              />
+            </div>
+            <div>
+              <label class="text-sm font-semibold">Furcation</label>
+              <select
+                class="mt-1 w-full rounded-xl border border-slate-200 p-2 text-sm dark:border-slate-700 dark:bg-slate-800"
+                value={props.state.perioFurcation()}
+                onChange={(e) => props.state.setPerioFurcation(Number(e.currentTarget.value))}
+              >
+                <For each={[0, 1, 2, 3] as FurcationGrade[]}>{(grade) => <option value={grade}>{grade}</option>}</For>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-semibold">Bleeding on probing</label>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <For each={PERIO_BLEEDING_SITES}>
+                {(site) => (
+                  <button
+                    type="button"
+                    class="rounded-full border border-slate-200 px-3 py-1 text-xs uppercase tracking-wide dark:border-slate-700"
+                    classList={{ 'bg-rose-500 text-white': props.state.perioBleedingSites().includes(site) }}
+                    onClick={() => props.state.toggleBleedingSite(site)}
+                  >
+                    {site}
+                  </button>
+                )}
+              </For>
+            </div>
+          </div>
+
           <button
             type="button"
             class="w-full rounded-2xl bg-emerald-600 py-2 text-sm font-semibold text-white shadow-lg"
@@ -527,18 +686,21 @@ function SwitchForm(props: SwitchFormProps) {
               <label class="text-sm font-semibold">Procedure</label>
               <select
                 class="mt-1 w-full rounded-xl border border-slate-200 p-2 text-sm dark:border-slate-700 dark:bg-slate-800"
-                value={props.state.surgeryType()}
-                onChange={(e) => props.state.setSurgeryType(e.currentTarget.value)}
+                value={props.state.surgeryPlan()}
+                onChange={(e) => props.state.setSurgeryPlan(e.currentTarget.value)}
               >
                 <option value="extraction">Extraction</option>
-                <option value="surgery">Surgery</option>
+                <option value="apico">Apicoectomy</option>
+                <option value="bone_graft">Bone graft</option>
               </select>
             </div>
             <div>
               <label class="text-sm font-semibold">Notes</label>
               <input
                 class="mt-1 w-full rounded-xl border border-slate-200 p-2 text-sm dark:border-slate-700 dark:bg-slate-800"
-                placeholder="Flap design, graft preference"
+                placeholder="Sedation, flap, graft"
+                value={props.state.sedationMode()}
+                onInput={(e) => props.state.setSedationMode(e.currentTarget.value)}
               />
             </div>
           </div>

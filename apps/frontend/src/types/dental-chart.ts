@@ -177,6 +177,11 @@ export interface PerioCondition {
   mobility: MobilityGrade;
   furcation?: FurcationGrade;
   boneLoss?: number; // percentage
+  plaqueScore?: number; // whole-mouth plaque control record
+  bleedingSites?: string[]; // MB/B/DB/ML/L/DL
+  deepestPocket?: number; // mm
+  bopNote?: string;
+  maintenancePhase?: 'active' | 're-eval' | 'maintenance';
   notes?: string;
 }
 
