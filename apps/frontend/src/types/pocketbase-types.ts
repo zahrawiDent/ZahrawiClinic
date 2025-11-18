@@ -1,36 +1,43 @@
 /**
- * PocketBase Collection Types
+ * PocketBase Collection Schemas & Types
  * 
- * This file contains TypeScript interfaces for your PocketBase collections.
- * Update these types to match your actual collection schemas for better type safety.
+ * This file uses Valibot schemas as the single source of truth for:
+ * - Runtime validation
+ * - TypeScript type inference
+ * - Form validation
+ * - API response validation
  * 
- * 🎯 HOW IT WORKS:
- * ================
+ * 🎯 WHY VALIBOT SCHEMAS?
+ * =======================
+ * 1. ✅ Single source of truth - one schema defines validation AND types
+ * 2. ✅ Runtime safety - validate PocketBase responses at runtime
+ * 3. ✅ Type inference - TypeScript types automatically derived
+ * 4. ✅ Form validation - direct integration with Modular Forms
+ * 5. ✅ Reusable - same schemas everywhere in the app
  * 
- * 1. Define your record types (what fields each collection has)
- * 2. Add them to the CollectionRecords interface (the mapping)
- * 3. All query hooks automatically infer the correct types!
+ * 🔄 WORKFLOW:
+ * ============
+ * 1. Define Valibot schema for collection
+ * 2. Type is automatically inferred via v.InferOutput<>
+ * 3. Use schema for validation, forms, and type checking
  * 
- * EXAMPLE:
- * --------
- * // 1. Define the record type
- * export interface PostsRecord extends BaseRecord {
- *   title: string
- *   content: string
- * }
+ * @example
+ * // Use for validation
+ * const validPatient = v.parse(PatientSchema, apiData)
  * 
- * // 2. Add to CollectionRecords
- * export interface CollectionRecords {
- *   posts: PostsRecord  // ← Add this line
- * }
+ * // Use for forms
+ * const [form] = createForm({
+ *   validate: valiForm(PatientSchema)
+ * })
  * 
- * // 3. Use anywhere with automatic types!
- * const posts = useCollection("posts")  // ← Automatically typed as PostsRecord[]
+ * // Use for types
+ * type Patient = v.InferOutput<typeof PatientSchema>
  * 
- * You can generate types automatically using pocketbase-typegen:
- * https://github.com/patmood/pocketbase-typegen
+ * You can also generate schemas from PocketBase using tools like:
+ * https://github.com/patmood/pocketbase-typegen (then convert to Valibot)
  */
 
+import * as v from 'valibot'
 import type { RecordModel } from 'pocketbase'
 
 // Alias types for improved usability
@@ -38,50 +45,41 @@ export type IsoDateString = string
 export type RecordIdString = string
 
 /**
- * Base interface for all records
- * 
- * Every PocketBase record has these fields by default.
- * All your custom record types should extend this.
+ * Base schema for all PocketBase records
+ * Every record has these fields by default
  */
-export interface BaseRecord extends RecordModel {
-  id: string        // Unique identifier
-  created: string   // ISO timestamp when created
-  updated: string   // ISO timestamp when last updated
-}
+export const BaseRecordSchema = v.object({
+  id: v.string(),
+  created: v.string(), // ISO timestamp
+  updated: v.string(), // ISO timestamp
+})
+
+export type BaseRecord = v.InferOutput<typeof BaseRecordSchema> & RecordModel
 
 /**
  * Users collection (auth collection)
- * 
- * This is the built-in PocketBase users/auth collection.
- * Extend this interface with your custom user fields.
- * 
- * @example
- * export interface UsersRecord extends BaseRecord {
- *   email?: string
- *   username?: string
- *   verified?: boolean
- *   // Add your custom fields:
- *   displayName?: string
- *   bio?: string
- *   avatarUrl?: string
- * }
+ * Built-in PocketBase auth collection with custom fields
  */
-export interface UsersRecord extends BaseRecord {
-  email?: string
-  username?: string
-  verified?: boolean
-  emailVisibility?: boolean
-  name?: string
-  avatar?: string
+const UsersDataSchema = v.object({
+  email: v.optional(v.string()),
+  username: v.optional(v.string()),
+  verified: v.optional(v.boolean()),
+  emailVisibility: v.optional(v.boolean()),
+  name: v.optional(v.string()),
+  avatar: v.optional(v.string()),
   // Add your custom fields here
-}
+})
+
+export const UsersSchema = v.intersect([BaseRecordSchema, UsersDataSchema])
+export const UsersFormSchema = UsersDataSchema
+
+export type UsersRecord = v.InferOutput<typeof UsersSchema>
+export type UsersFormData = v.InferOutput<typeof UsersFormSchema>
 
 /**
  * Appointments collection
- * 
- * Scheduling and appointment management.
+ * Scheduling and appointment management
  */
-
 export const APPOINTMENT_STATUS = {
   scheduled: "scheduled",
   confirmed: "confirmed",
@@ -90,9 +88,7 @@ export const APPOINTMENT_STATUS = {
   no_show: "no_show",
 } as const
 
-
-export type AppointmentStatus =
-  (typeof APPOINTMENT_STATUS)[keyof typeof APPOINTMENT_STATUS]
+export type AppointmentStatus = (typeof APPOINTMENT_STATUS)[keyof typeof APPOINTMENT_STATUS]
 
 export const APPOINTMENT_TYPE = {
   checkup: "checkup",
@@ -104,592 +100,676 @@ export const APPOINTMENT_TYPE = {
   consultation: "consultation",
   emergency: "emergency",
   other: "other",
-}
+} as const
+
 export type AppointmentType = (typeof APPOINTMENT_TYPE)[keyof typeof APPOINTMENT_TYPE]
 
-export interface AppointmentsRecord extends BaseRecord {
-  patient: string  // relation to patients (required)
-  dentist: string  // relation to users (required)
+const AppointmentsDataSchema = v.object({
+  patient: v.string(), // relation to patients (required)
+  dentist: v.string(), // relation to users (required)
 
-  //   // Scheduling
-  start_time: IsoDateString
-  duration: number  // in minutes
-  status: AppointmentStatus
+  // Scheduling
+  start_time: v.string(), // ISO date
+  duration: v.number(), // in minutes
+  status: v.picklist(Object.values(APPOINTMENT_STATUS)),
 
-  //   // Appointment Details
-  type: AppointmentType
-  treatmentPlan?: string  // relation to treatment_plans
-  room?: string
-  notes?: string
+  // Appointment Details
+  type: v.picklist(Object.values(APPOINTMENT_TYPE)),
+  treatmentPlan: v.optional(v.string()), // relation to treatment_plans
+  room: v.optional(v.string()),
+  notes: v.optional(v.string()),
 
-  //   // Reminders
-  //   reminderSent?: boolean
-  //   reminderSentAt?: string
-  //
-  //   // Completion
-  completedAt?: string
-  cancelledAt?: string
-  cancellationReason?: string
-}
+  // Completion
+  completedAt: v.optional(v.string()),
+  cancelledAt: v.optional(v.string()),
+  cancellationReason: v.optional(v.string()),
+})
+
+export const AppointmentsSchema = v.intersect([BaseRecordSchema, AppointmentsDataSchema])
+export const AppointmentsFormSchema = AppointmentsDataSchema
+
+export type AppointmentsRecord = v.InferOutput<typeof AppointmentsSchema>
+export type AppointmentsFormData = v.InferOutput<typeof AppointmentsFormSchema>
 
 
 /**
  * Patients collection
- * 
- * Core patient information for the dental practice.
- * Normalized for better data integrity.
+ * Core patient information for the dental practice
+ * Normalized for better data integrity
  */
-export interface PatientsRecord extends BaseRecord {
+const PatientsDataSchema = v.object({
   // Basic Information
-  firstName: string
-  lastName: string
-  dateOfBirth?: IsoDateString
-  gender: "male" | "female"
+  firstName: v.pipe(v.string(), v.nonEmpty("First name is required")),
+  lastName: v.pipe(v.string(), v.nonEmpty("Last name is required")),
+  dateOfBirth: v.optional(v.string()), // ISO date
+  gender: v.picklist(["male", "female"]),
 
   // Contact Information
-  email?: string
-  phone?: string
-  mobile?: string
+  email: v.optional(v.pipe(v.string(), v.email())),
+  phone: v.optional(v.string()),
+  mobile: v.optional(v.string()),
 
   // Address (normalized - relation)
-  primaryAddress?: RecordIdString // relation to addresses
+  primaryAddress: v.optional(v.string()), // relation to addresses
 
   // Practice Management
-  primaryDentist?: RecordIdString // relation to users
-  status?: "active" | "inactive" | "archived"
-  notes?: string
+  primaryDentist: v.optional(v.string()), // relation to users
+  status: v.optional(v.picklist(["active", "inactive", "archived"])),
+  notes: v.optional(v.string()),
 
   // Insurance (normalized - relation)
-  primaryInsurance?: RecordIdString // relation to patient_insurance
+  primaryInsurance: v.optional(v.string()), // relation to patient_insurance
 
   // Emergency Contact (normalized - relation)
-  emergencyContact?: RecordIdString // relation to emergency_contacts
+  emergencyContact: v.optional(v.string()), // relation to emergency_contacts
+})
 
-  // Reverse relations (populated via expand):
-  // - medical_history (via medical_history.patient)
-  // - appointments (via appointments.patient)
-  // - treatments (via treatments.patient)
-  // - invoices (via invoices.patient)
-}
+export const PatientsSchema = v.intersect([BaseRecordSchema, PatientsDataSchema])
+export const PatientsFormSchema = PatientsDataSchema
+
+export type PatientsRecord = v.InferOutput<typeof PatientsSchema>
+export type PatientsFormData = v.InferOutput<typeof PatientsFormSchema>
 
 
 /**
  * Treatments collection
- * 
- * Individual treatment records performed during appointments.
- * Treatment catalog referenced for standardization.
+ * Individual treatment records performed during appointments
+ * Treatment catalog referenced for standardization
  */
-export interface TreatmentsRecord extends BaseRecord {
-  patient: RecordIdString // relation to patients
-  appointment?: RecordIdString // relation to appointments
-  performedBy: RecordIdString // relation to users (dentist)
+const TreatmentsDataSchema = v.object({
+  patient: v.string(), // relation to patients
+  appointment: v.optional(v.string()), // relation to appointments
+  performedBy: v.string(), // relation to users (dentist)
 
   // Treatment Details (normalized)
-  treatmentType: RecordIdString // relation to treatments_catalog
-  toothNumber?: string // dental notation (e.g., "18", "2.1")
-  surface?: string // e.g., "occlusal", "mesial"
+  treatmentType: v.string(), // relation to treatments_catalog
+  toothNumber: v.optional(v.string()), // dental notation (e.g., "18", "2.1")
+  surface: v.optional(v.string()), // e.g., "occlusal", "mesial"
 
   // Clinical Notes
-  diagnosis?: string
-  procedure?: string
-  notes?: string
+  diagnosis: v.optional(v.string()),
+  procedure: v.optional(v.string()),
+  notes: v.optional(v.string()),
 
-  // Billing (removed redundant payment tracking - use invoice_items instead)
-  // Cost comes from treatments_catalog, can be overridden
-  actualCost?: number // if different from catalog price
+  // Billing
+  actualCost: v.optional(v.number()), // if different from catalog price
 
   // Link to invoice item for payment tracking
-  invoiceItem?: RecordIdString // relation to invoice_items
+  invoiceItem: v.optional(v.string()), // relation to invoice_items
 
   // Date
-  treatmentDate: IsoDateString
-  completedAt?: IsoDateString
-}
+  treatmentDate: v.string(), // ISO date
+  completedAt: v.optional(v.string()), // ISO date
+})
 
-export interface TreatmentsCatalogRecord extends BaseRecord {
-  name: string
-  description?: string
-  default_price: number
-  category?: string // e.g., "preventive", "restorative", "surgical"
-  code?: string // procedure code (CPT, CDT, etc.)
-  insuranceCoverage?: number // typical insurance coverage percentage
-  estimatedDuration?: number // in minutes
-}
+export const TreatmentsSchema = v.intersect([BaseRecordSchema, TreatmentsDataSchema])
+export const TreatmentsFormSchema = TreatmentsDataSchema
+
+export type TreatmentsRecord = v.InferOutput<typeof TreatmentsSchema>
+export type TreatmentsFormData = v.InferOutput<typeof TreatmentsFormSchema>
+
+/**
+ * Treatments Catalog collection
+ * Standardized treatment definitions
+ */
+const TreatmentsCatalogDataSchema = v.object({
+  name: v.pipe(v.string(), v.nonEmpty("Treatment name is required")),
+  description: v.optional(v.string()),
+  default_price: v.number(),
+  category: v.optional(v.string()), // e.g., "preventive", "restorative", "surgical"
+  code: v.optional(v.string()), // procedure code (CPT, CDT, etc.)
+  insuranceCoverage: v.optional(v.number()), // typical insurance coverage percentage
+  estimatedDuration: v.optional(v.number()), // in minutes
+})
+
+export const TreatmentsCatalogSchema = v.intersect([BaseRecordSchema, TreatmentsCatalogDataSchema])
+export const TreatmentsCatalogFormSchema = TreatmentsCatalogDataSchema
+
+export type TreatmentsCatalogRecord = v.InferOutput<typeof TreatmentsCatalogSchema>
+export type TreatmentsCatalogFormData = v.InferOutput<typeof TreatmentsCatalogFormSchema>
 
 
 /**
  * Todos collection
- * 
- * Task management for office and clinical tasks.
+ * Task management for office and clinical tasks
  */
-export interface TodoRecord extends BaseRecord {
-  title: string
-  description?: string
-  completed: boolean
-  priority?: 'low' | 'medium' | 'high' | 'urgent'
-  dueDate?: string
-  assignedTo?: string  // relation to users
-  relatedPatient?: string  // relation to patients
-  category?: 'administrative' | 'clinical' | 'follow_up' | 'billing' | 'other'
-}
+
+// Data fields (without base record fields)
+const TodoDataSchema = v.object({
+  title: v.pipe(v.string(), v.nonEmpty("Title is required")),
+  description: v.optional(v.string()),
+  completed: v.boolean(),
+  priority: v.optional(v.picklist(['low', 'medium', 'high', 'urgent'])),
+  dueDate: v.optional(v.string()),
+  assignedTo: v.optional(v.string()), // relation to users
+  relatedPatient: v.optional(v.string()), // relation to patients
+  category: v.optional(v.picklist(['administrative', 'clinical', 'follow_up', 'billing', 'other'])),
+})
+
+// Full schema with base record fields (for API responses)
+export const TodoSchema = v.intersect([
+  BaseRecordSchema,
+  TodoDataSchema,
+])
+
+// Schema for creating/updating (without base record fields)
+export const TodoFormSchema = TodoDataSchema
+
+export type TodoRecord = v.InferOutput<typeof TodoSchema>
+export type TodoFormData = v.InferOutput<typeof TodoFormSchema>
 
 
 
 /**
  * Treatment Plans collection
- * 
- * Multi-step treatment plans for patients.
- * Individual plan items stored in treatment_plan_items for normalization.
+ * Multi-step treatment plans for patients
+ * Individual plan items stored in treatment_plan_items for normalization
  */
-export interface TreatmentPlansRecord extends BaseRecord {
-  patient: RecordIdString // relation to patients
-  createdBy: RecordIdString // relation to users (dentist)
+const TreatmentPlansDataSchema = v.object({
+  patient: v.string(), // relation to patients
+  createdBy: v.string(), // relation to users (dentist)
 
   // Plan Details
-  title: string
-  description?: string
-  diagnosis?: string
+  title: v.pipe(v.string(), v.nonEmpty("Title is required")),
+  description: v.optional(v.string()),
+  diagnosis: v.optional(v.string()),
 
   // Status
-  status: "proposed" | "accepted" | "in_progress" | "completed" | "cancelled"
+  status: v.picklist(["proposed", "accepted", "in_progress", "completed", "cancelled"]),
 
   // Dates
-  proposedDate?: IsoDateString
-  acceptedDate?: IsoDateString
-  completedDate?: IsoDateString
+  proposedDate: v.optional(v.string()), // ISO date
+  acceptedDate: v.optional(v.string()),
+  completedDate: v.optional(v.string()),
 
   // Financial (calculated from plan items)
-  estimatedCost?: number
+  estimatedCost: v.optional(v.number()),
+})
 
-  // Reverse relations (populated via expand):
-  // - treatment_plan_items (via treatment_plan_items.treatmentPlan)
-}
+export const TreatmentPlansSchema = v.intersect([BaseRecordSchema, TreatmentPlansDataSchema])
+export const TreatmentPlansFormSchema = TreatmentPlansDataSchema
+
+export type TreatmentPlansRecord = v.InferOutput<typeof TreatmentPlansSchema>
+export type TreatmentPlansFormData = v.InferOutput<typeof TreatmentPlansFormSchema>
 
 /**
  * Invoices collection
- * 
- * Billing header - line items stored separately in invoice_items.
- * Payment tracking done via payments collection.
+ * Billing header - line items stored separately in invoice_items
+ * Payment tracking done via payments collection
  */
-export interface InvoicesRecord extends BaseRecord {
-  patient: RecordIdString // relation to patients
-  appointment?: RecordIdString // relation to appointments
+export const InvoicesSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    patient: v.string(), // relation to patients
+    appointment: v.optional(v.string()), // relation to appointments
 
-  // Invoice Details
-  invoiceNumber: string // indexed, unique
-  invoiceDate: IsoDateString
-  dueDate?: IsoDateString
+    // Invoice Details
+    invoiceNumber: v.pipe(v.string(), v.nonEmpty("Invoice number is required")), // indexed, unique
+    invoiceDate: v.string(), // ISO date
+    dueDate: v.optional(v.string()),
 
-  // Totals (calculated from invoice_items)
-  subtotal: number
-  tax?: number
-  discount?: number
-  total: number
+    // Totals (calculated from invoice_items)
+    subtotal: v.number(),
+    tax: v.optional(v.number()),
+    discount: v.optional(v.number()),
+    total: v.number(),
 
-  // Status
-  status: "draft" | "sent" | "paid" | "partial" | "overdue" | "cancelled"
+    // Status
+    status: v.picklist(["draft", "sent", "paid", "partial", "overdue", "cancelled"]),
 
-  // Insurance
-  insuranceClaim?: RecordIdString // relation to insurance_claims
-  insuranceAmount?: number
+    // Insurance
+    insuranceClaim: v.optional(v.string()), // relation to insurance_claims
+    insuranceAmount: v.optional(v.number()),
 
-  notes?: string
+    notes: v.optional(v.string()),
+  }),
+])
 
-  // Reverse relations (populated via expand):
-  // - invoice_items (via invoice_items.invoice)
-  // - payments (via payments.invoice)
-}
+export type InvoicesRecord = v.InferOutput<typeof InvoicesSchema>
 
 /**
  * Payments collection
- * 
- * Individual payment transactions.
+ * Individual payment transactions
  */
-export interface PaymentsRecord extends BaseRecord {
-  patient: string  // relation to patients
-  invoice: string  // relation to invoices
+export const PaymentsSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    patient: v.string(), // relation to patients
+    invoice: v.string(), // relation to invoices
 
-  // Payment Details
-  amount: number
-  paymentDate: string
-  paymentMethod: 'cash' | 'card' | 'insurance' | 'check' | 'transfer'
+    // Payment Details
+    amount: v.number(),
+    paymentDate: v.string(), // ISO date
+    paymentMethod: v.picklist(['cash', 'card', 'insurance', 'check', 'transfer']),
 
-  // Transaction Details
-  transactionId?: string
-  reference?: string
-  notes?: string
+    // Transaction Details
+    transactionId: v.optional(v.string()),
+    reference: v.optional(v.string()),
+    notes: v.optional(v.string()),
 
-  // Processing
-  processedBy?: string  // relation to users
-}
+    // Processing
+    processedBy: v.optional(v.string()), // relation to users
+  }),
+])
+
+export type PaymentsRecord = v.InferOutput<typeof PaymentsSchema>
 
 /**
  * Medical History collection
- * 
- * Detailed medical history records for patients.
+ * Detailed medical history records for patients
  */
-export interface MedicalHistoryRecord extends BaseRecord {
-  patient: string  // relation to patients
-  recordedBy: string  // relation to users
+export const MedicalHistorySchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    patient: v.string(), // relation to patients
+    recordedBy: v.string(), // relation to users
 
-  // Medical Conditions
-  conditions?: string[]
-  allergies?: string[]
-  medications?: string[]
+    // Medical Conditions
+    conditions: v.optional(v.array(v.string())),
+    allergies: v.optional(v.array(v.string())),
+    medications: v.optional(v.array(v.string())),
 
-  // Dental History
-  previousDentalWork?: string
-  dentalConcerns?: string
+    // Dental History
+    previousDentalWork: v.optional(v.string()),
+    dentalConcerns: v.optional(v.string()),
 
-  // Lifestyle
-  smoking?: boolean
-  smokingFrequency?: string
-  alcohol?: boolean
-  alcoholFrequency?: string
+    // Lifestyle
+    smoking: v.optional(v.boolean()),
+    smokingFrequency: v.optional(v.string()),
+    alcohol: v.optional(v.boolean()),
+    alcoholFrequency: v.optional(v.string()),
 
-  // Other
-  notes?: string
-  recordDate: string
-}
+    // Other
+    notes: v.optional(v.string()),
+    recordDate: v.string(), // ISO date
+  }),
+])
+
+export type MedicalHistoryRecord = v.InferOutput<typeof MedicalHistorySchema>
 
 /**
  * Prescriptions collection
- * 
- * Medication prescriptions issued to patients.
+ * Medication prescriptions issued to patients
  */
-export interface PrescriptionsRecord extends BaseRecord {
-  patient: string  // relation to patients
-  prescribedBy: string  // relation to users (dentist)
-  appointment?: string  // relation to appointments
+export const PrescriptionsSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    patient: v.string(), // relation to patients
+    prescribedBy: v.string(), // relation to users (dentist)
+    appointment: v.optional(v.string()), // relation to appointments
 
-  // Medication Details
-  medicationName: string
-  dosage: string
-  frequency: string
-  duration: string  // e.g., "7 days"
-  quantity?: string
+    // Medication Details
+    medicationName: v.pipe(v.string(), v.nonEmpty("Medication name is required")),
+    dosage: v.pipe(v.string(), v.nonEmpty("Dosage is required")),
+    frequency: v.pipe(v.string(), v.nonEmpty("Frequency is required")),
+    duration: v.pipe(v.string(), v.nonEmpty("Duration is required")), // e.g., "7 days"
+    quantity: v.optional(v.string()),
 
-  // Instructions
-  instructions?: string
+    // Instructions
+    instructions: v.optional(v.string()),
 
-  // Dates
-  prescribedDate: string
-  startDate?: string
-  endDate?: string
+    // Dates
+    prescribedDate: v.string(), // ISO date
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
 
-  // Status
-  status: 'active' | 'completed' | 'cancelled'
+    // Status
+    status: v.picklist(['active', 'completed', 'cancelled']),
 
-  notes?: string
-}
+    notes: v.optional(v.string()),
+  }),
+])
+
+export type PrescriptionsRecord = v.InferOutput<typeof PrescriptionsSchema>
 
 /**
  * Inventory collection
- * 
- * Dental supplies and equipment inventory management.
+ * Dental supplies and equipment inventory management
  */
-export interface InventoryRecord extends BaseRecord {
-  // Item Details
-  name: string
-  category: 'dental_supplies' | 'medication' | 'equipment' | 'consumables' | 'other'
-  sku?: string
-  barcode?: string
+export const InventorySchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    // Item Details
+    name: v.pipe(v.string(), v.nonEmpty("Item name is required")),
+    category: v.picklist(['dental_supplies', 'medication', 'equipment', 'consumables', 'other']),
+    sku: v.optional(v.string()),
+    barcode: v.optional(v.string()),
 
-  // Stock
-  quantity: number
-  unit: string  // e.g., "pieces", "boxes", "bottles"
-  minQuantity?: number  // reorder threshold
-  maxQuantity?: number
+    // Stock
+    quantity: v.number(),
+    unit: v.pipe(v.string(), v.nonEmpty("Unit is required")), // e.g., "pieces", "boxes", "bottles"
+    minQuantity: v.optional(v.number()), // reorder threshold
+    maxQuantity: v.optional(v.number()),
 
-  // Supplier
-  supplier?: string
-  supplierSku?: string
+    // Supplier
+    supplier: v.optional(v.string()),
+    supplierSku: v.optional(v.string()),
 
-  // Pricing
-  costPrice?: number
-  sellingPrice?: number
+    // Pricing
+    costPrice: v.optional(v.number()),
+    sellingPrice: v.optional(v.number()),
 
-  // Storage
-  location?: string
-  expiryDate?: string
+    // Storage
+    location: v.optional(v.string()),
+    expiryDate: v.optional(v.string()), // ISO date
 
-  // Status
-  status: 'in_stock' | 'low_stock' | 'out_of_stock' | 'discontinued'
+    // Status
+    status: v.picklist(['in_stock', 'low_stock', 'out_of_stock', 'discontinued']),
 
-  notes?: string
-}
+    notes: v.optional(v.string()),
+  }),
+])
+
+export type InventoryRecord = v.InferOutput<typeof InventorySchema>
 
 /**
  * Staff/Dentists collection extension
- * 
- * Additional fields for users who are staff/dentists.
- * This extends the base users collection.
+ * Additional fields for users who are staff/dentists
+ * This extends the base users collection
  */
-export interface StaffRecord extends UsersRecord {
-  // Professional Information
-  role: 'dentist' | 'hygienist' | 'assistant' | 'receptionist' | 'admin' | 'other'
-  licenseNumber?: string
-  specialization?: string[]
+export const StaffSchema = v.intersect([
+  UsersSchema,
+  v.object({
+    // Professional Information
+    role: v.picklist(['dentist', 'hygienist', 'assistant', 'receptionist', 'admin', 'other']),
+    licenseNumber: v.optional(v.string()),
+    specialization: v.optional(v.array(v.string())),
 
-  // Employment
-  employmentType?: 'full_time' | 'part_time' | 'contract'
-  hireDate?: string
+    // Employment
+    employmentType: v.optional(v.picklist(['full_time', 'part_time', 'contract'])),
+    hireDate: v.optional(v.string()), // ISO date
 
-  // Schedule
-  workingDays?: string[]  // e.g., ["monday", "tuesday", "wednesday"]
-  workingHours?: {
-    start: string
-    end: string
-  }
+    // Schedule
+    workingDays: v.optional(v.array(v.string())), // e.g., ["monday", "tuesday", "wednesday"]
+    workingHours: v.optional(v.object({
+      start: v.string(),
+      end: v.string(),
+    })),
 
-  // Contact
-  phone?: string
-  emergencyContact?: string
-  emergencyPhone?: string
+    // Contact
+    phone: v.optional(v.string()),
+    emergencyContact: v.optional(v.string()),
+    emergencyPhone: v.optional(v.string()),
 
-  // Status
-  isActive: boolean
-}
+    // Status
+    isActive: v.boolean(),
+  }),
+])
+
+export type StaffRecord = v.InferOutput<typeof StaffSchema>
 
 /**
  * Invoice Items collection
- * 
- * Normalized invoice line items - separates line items from invoice header.
- * Better for querying, reporting, and data integrity.
+ * Normalized invoice line items - separates line items from invoice header
+ * Better for querying, reporting, and data integrity
  */
-export interface InvoiceItemsRecord extends BaseRecord {
-  invoice: RecordIdString // relation to invoices (required)
+export const InvoiceItemsSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    invoice: v.string(), // relation to invoices (required)
 
-  // Item Details
-  description: string
-  quantity: number
-  unitPrice: number
-  total: number // quantity * unitPrice
+    // Item Details
+    description: v.pipe(v.string(), v.nonEmpty("Description is required")),
+    quantity: v.number(),
+    unitPrice: v.number(),
+    total: v.number(), // quantity * unitPrice
 
-  // Optional Relations
-  treatment?: RecordIdString // relation to treatments
-  inventoryItem?: RecordIdString // relation to inventory
+    // Optional Relations
+    treatment: v.optional(v.string()), // relation to treatments
+    inventoryItem: v.optional(v.string()), // relation to inventory
 
-  // Discounts
-  discount?: number
-  discountType?: "percentage" | "fixed"
+    // Discounts
+    discount: v.optional(v.number()),
+    discountType: v.optional(v.picklist(["percentage", "fixed"])),
 
-  // Tax
-  taxable?: boolean
-  taxAmount?: number
+    // Tax
+    taxable: v.optional(v.boolean()),
+    taxAmount: v.optional(v.number()),
 
-  // Insurance
-  insuranceCoverage?: number // amount covered by insurance
+    // Insurance
+    insuranceCoverage: v.optional(v.number()), // amount covered by insurance
 
-  // Ordering
-  lineNumber?: number // for display ordering
-}
+    // Ordering
+    lineNumber: v.optional(v.number()), // for display ordering
+  }),
+])
+
+export type InvoiceItemsRecord = v.InferOutput<typeof InvoiceItemsSchema>
 
 /**
  * Treatment Plan Items collection
- * 
- * Normalized treatment plan steps - better than storing array in treatment_plans.
- * Allows independent tracking of each step's status and completion.
+ * Normalized treatment plan steps - better than storing array in treatment_plans
+ * Allows independent tracking of each step's status and completion
  */
-export interface TreatmentPlanItemsRecord extends BaseRecord {
-  treatmentPlan: RecordIdString // relation to treatment_plans (required)
+export const TreatmentPlanItemsSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    treatmentPlan: v.string(), // relation to treatment_plans (required)
 
-  // Treatment Details
-  treatmentType: RecordIdString // relation to treatments_catalog
-  toothNumber?: string
-  surface?: string
+    // Treatment Details
+    treatmentType: v.string(), // relation to treatments_catalog
+    toothNumber: v.optional(v.string()),
+    surface: v.optional(v.string()),
 
-  // Planning
-  description?: string
-  priority: "low" | "medium" | "high" | "urgent"
-  estimatedCost?: number
-  estimatedDuration?: number // minutes
+    // Planning
+    description: v.optional(v.string()),
+    priority: v.picklist(["low", "medium", "high", "urgent"]),
+    estimatedCost: v.optional(v.number()),
+    estimatedDuration: v.optional(v.number()), // minutes
 
-  // Status
-  status: "pending" | "scheduled" | "in_progress" | "completed" | "cancelled"
+    // Status
+    status: v.picklist(["pending", "scheduled", "in_progress", "completed", "cancelled"]),
 
-  // Scheduling
-  scheduledDate?: IsoDateString
-  completedDate?: IsoDateString
+    // Scheduling
+    scheduledDate: v.optional(v.string()), // ISO date
+    completedDate: v.optional(v.string()),
 
-  // Link to actual treatment when performed
-  completedTreatment?: RecordIdString // relation to treatments
+    // Link to actual treatment when performed
+    completedTreatment: v.optional(v.string()), // relation to treatments
 
-  // Ordering
-  sequenceNumber?: number // order in treatment plan
+    // Ordering
+    sequenceNumber: v.optional(v.number()), // order in treatment plan
 
-  notes?: string
-}
+    notes: v.optional(v.string()),
+  }),
+])
+
+export type TreatmentPlanItemsRecord = v.InferOutput<typeof TreatmentPlanItemsSchema>
 
 /**
  * Addresses collection
- * 
- * Normalized address storage - reusable for patients, staff, suppliers.
- * Enables better validation, geocoding, and address history.
+ * Normalized address storage - reusable for patients, staff, suppliers
+ * Enables better validation, geocoding, and address history
  */
-export interface AddressesRecord extends BaseRecord {
-  // Address Type
-  addressType?: "home" | "work" | "billing" | "shipping" | "other"
+export const AddressesSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    // Address Type
+    addressType: v.optional(v.picklist(["home", "work", "billing", "shipping", "other"])),
 
-  // Address Components
-  street1: string
-  street2?: string
-  city: string
-  state: string
-  zipCode: string
-  country: string
+    // Address Components
+    street1: v.pipe(v.string(), v.nonEmpty("Street address is required")),
+    street2: v.optional(v.string()),
+    city: v.pipe(v.string(), v.nonEmpty("City is required")),
+    state: v.pipe(v.string(), v.nonEmpty("State is required")),
+    zipCode: v.pipe(v.string(), v.nonEmpty("Zip code is required")),
+    country: v.pipe(v.string(), v.nonEmpty("Country is required")),
 
-  // Geocoding (optional)
-  latitude?: number
-  longitude?: number
+    // Geocoding (optional)
+    latitude: v.optional(v.number()),
+    longitude: v.optional(v.number()),
 
-  // Validation
-  isVerified?: boolean
-  verifiedAt?: IsoDateString
+    // Validation
+    isVerified: v.optional(v.boolean()),
+    verifiedAt: v.optional(v.string()), // ISO date
 
-  // Metadata
-  isPrimary?: boolean
-  label?: string // custom label like "Summer Home"
-}
+    // Metadata
+    isPrimary: v.optional(v.boolean()),
+    label: v.optional(v.string()), // custom label like "Summer Home"
+  }),
+])
+
+export type AddressesRecord = v.InferOutput<typeof AddressesSchema>
 
 /**
  * Emergency Contacts collection
- * 
- * Normalized emergency contact storage.
- * Allows multiple emergency contacts per patient.
+ * Normalized emergency contact storage
+ * Allows multiple emergency contacts per patient
  */
-export interface EmergencyContactsRecord extends BaseRecord {
-  // Contact Info
-  firstName: string
-  lastName: string
-  relationship: string // e.g., "spouse", "parent", "sibling", "friend"
+export const EmergencyContactsSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    // Contact Info
+    firstName: v.pipe(v.string(), v.nonEmpty("First name is required")),
+    lastName: v.pipe(v.string(), v.nonEmpty("Last name is required")),
+    relationship: v.pipe(v.string(), v.nonEmpty("Relationship is required")), // e.g., "spouse", "parent", "sibling", "friend"
 
-  // Phone Numbers
-  primaryPhone: string
-  secondaryPhone?: string
+    // Phone Numbers
+    primaryPhone: v.pipe(v.string(), v.nonEmpty("Primary phone is required")),
+    secondaryPhone: v.optional(v.string()),
 
-  // Contact Preferences
-  preferredContactMethod?: "phone" | "sms" | "email"
-  email?: string
+    // Contact Preferences
+    preferredContactMethod: v.optional(v.picklist(["phone", "sms", "email"])),
+    email: v.optional(v.pipe(v.string(), v.email())),
 
-  // Address (optional relation)
-  address?: RecordIdString // relation to addresses
+    // Address (optional relation)
+    address: v.optional(v.string()), // relation to addresses
 
-  // Priority
-  isPrimary?: boolean
-  priority?: number // 1 = first to contact
+    // Priority
+    isPrimary: v.optional(v.boolean()),
+    priority: v.optional(v.number()), // 1 = first to contact
 
-  notes?: string
-}
+    notes: v.optional(v.string()),
+  }),
+])
+
+export type EmergencyContactsRecord = v.InferOutput<typeof EmergencyContactsSchema>
 
 /**
  * Patient Insurance collection
- * 
- * Normalized insurance information.
+ * Normalized insurance information
  * Allows multiple insurance policies per patient (primary, secondary, etc.)
  */
-export interface PatientInsuranceRecord extends BaseRecord {
-  patient: RecordIdString // relation to patients (required)
+export const PatientInsuranceSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    patient: v.string(), // relation to patients (required)
 
-  // Insurance Details
-  provider: string
-  policyNumber: string
-  groupNumber?: string
+    // Insurance Details
+    provider: v.pipe(v.string(), v.nonEmpty("Provider is required")),
+    policyNumber: v.pipe(v.string(), v.nonEmpty("Policy number is required")),
+    groupNumber: v.optional(v.string()),
 
-  // Coverage Type
-  coverageType: "primary" | "secondary" | "tertiary"
+    // Coverage Type
+    coverageType: v.picklist(["primary", "secondary", "tertiary"]),
 
-  // Policy Holder (if different from patient)
-  policyHolderName?: string
-  policyHolderDOB?: IsoDateString
-  relationshipToPolicyHolder?: "self" | "spouse" | "child" | "other"
+    // Policy Holder (if different from patient)
+    policyHolderName: v.optional(v.string()),
+    policyHolderDOB: v.optional(v.string()), // ISO date
+    relationshipToPolicyHolder: v.optional(v.picklist(["self", "spouse", "child", "other"])),
 
-  // Coverage Details
-  effectiveDate?: IsoDateString
-  expirationDate?: IsoDateString
+    // Coverage Details
+    effectiveDate: v.optional(v.string()), // ISO date
+    expirationDate: v.optional(v.string()),
 
-  // Contact
-  insurancePhone?: string
-  insuranceAddress?: RecordIdString // relation to addresses
+    // Contact
+    insurancePhone: v.optional(v.string()),
+    insuranceAddress: v.optional(v.string()), // relation to addresses
 
-  // Coverage Limits
-  annualMaximum?: number
-  deductible?: number
-  deductibleMet?: number
+    // Coverage Limits
+    annualMaximum: v.optional(v.number()),
+    deductible: v.optional(v.number()),
+    deductibleMet: v.optional(v.number()),
 
-  // Status
-  isActive: boolean
+    // Status
+    isActive: v.boolean(),
 
-  notes?: string
-}
+    notes: v.optional(v.string()),
+  }),
+])
+
+export type PatientInsuranceRecord = v.InferOutput<typeof PatientInsuranceSchema>
 
 /**
  * Insurance Claims collection
- * 
- * Track insurance claims separately from invoices.
- * Enables proper claim management workflow.
+ * Track insurance claims separately from invoices
+ * Enables proper claim management workflow
  */
-export interface InsuranceClaimsRecord extends BaseRecord {
-  patient: RecordIdString // relation to patients
-  insurance: RecordIdString // relation to patient_insurance
-  invoice?: RecordIdString // relation to invoices
+export const InsuranceClaimsSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    patient: v.string(), // relation to patients
+    insurance: v.string(), // relation to patient_insurance
+    invoice: v.optional(v.string()), // relation to invoices
 
-  // Claim Details
-  claimNumber?: string
-  claimDate: IsoDateString
+    // Claim Details
+    claimNumber: v.optional(v.string()),
+    claimDate: v.string(), // ISO date
 
-  // Amounts
-  claimedAmount: number
-  approvedAmount?: number
-  paidAmount?: number
-  deniedAmount?: number
-  patientResponsibility?: number
+    // Amounts
+    claimedAmount: v.number(),
+    approvedAmount: v.optional(v.number()),
+    paidAmount: v.optional(v.number()),
+    deniedAmount: v.optional(v.number()),
+    patientResponsibility: v.optional(v.number()),
 
-  // Status
-  status: "pending" | "submitted" | "approved" | "partial" | "denied" | "paid"
+    // Status
+    status: v.picklist(["pending", "submitted", "approved", "partial", "denied", "paid"]),
 
-  // Tracking
-  submittedDate?: IsoDateString
-  processedDate?: IsoDateString
-  paidDate?: IsoDateString
+    // Tracking
+    submittedDate: v.optional(v.string()), // ISO date
+    processedDate: v.optional(v.string()),
+    paidDate: v.optional(v.string()),
 
-  // Denial Info
-  denialReason?: string
-  appealDate?: IsoDateString
-  appealStatus?: "pending" | "approved" | "denied"
+    // Denial Info
+    denialReason: v.optional(v.string()),
+    appealDate: v.optional(v.string()),
+    appealStatus: v.optional(v.picklist(["pending", "approved", "denied"])),
 
-  notes?: string
-}
+    notes: v.optional(v.string()),
+  }),
+])
+
+export type InsuranceClaimsRecord = v.InferOutput<typeof InsuranceClaimsSchema>
 
 /**
  * Dental Chart collection
- * 
- * Track tooth-specific conditions and history.
- * Enables visual dental charts and treatment planning.
+ * Track tooth-specific conditions and history
+ * Enables visual dental charts and treatment planning
  */
-export interface DentalChartRecord extends BaseRecord {
-  patient: RecordIdString // relation to patients (required)
-  toothNumber: string // dental notation (FDI, Universal, Palmer)
+export const DentalChartSchema = v.intersect([
+  BaseRecordSchema,
+  v.object({
+    patient: v.string(), // relation to patients (required)
+    toothNumber: v.pipe(v.string(), v.nonEmpty("Tooth number is required")), // dental notation (FDI, Universal, Palmer)
 
-  // Tooth Status
-  status: "healthy" | "decayed" | "filled" | "missing" | "implant" | "crown" | "bridge" | "root_canal" | "extracted" | "other"
+    // Tooth Status
+    status: v.picklist(["healthy", "decayed", "filled", "missing", "implant", "crown", "bridge", "root_canal", "extracted", "other"]),
 
-  // Condition Details
-  conditions?: string[] // e.g., ["cavity", "sensitivity", "wear"]
-  surfaces?: string[] // affected surfaces: ["occlusal", "mesial", "distal", "buccal", "lingual"]
+    // Condition Details
+    conditions: v.optional(v.array(v.string())), // e.g., ["cavity", "sensitivity", "wear"]
+    surfaces: v.optional(v.array(v.string())), // affected surfaces: ["occlusal", "mesial", "distal", "buccal", "lingual"]
 
-  // Date tracking
-  conditionDate?: IsoDateString
-  lastExamDate?: IsoDateString
+    // Date tracking
+    conditionDate: v.optional(v.string()), // ISO date
+    lastExamDate: v.optional(v.string()),
 
-  // Links to treatments
-  relatedTreatments?: RecordIdString[] // can expand to get full history
+    // Links to treatments
+    relatedTreatments: v.optional(v.array(v.string())), // can expand to get full history
 
-  notes?: string
-}
+    notes: v.optional(v.string()),
+  }),
+])
+
+export type DentalChartRecord = v.InferOutput<typeof DentalChartSchema>
 
 /**
- * 📋 All normalized collections added for proper relational design
+ * 📋 All schemas exported for validation and form integration
+ * 
+ * Use these schemas for:
+ * - Runtime validation: v.parse(PatientSchema, data)
+ * - Form validation: valiForm(PatientSchema)
+ * - Type inference: v.InferOutput<typeof PatientSchema>
  */
 
 // =============================================================================
@@ -706,7 +786,7 @@ interface AuthCollections {
 /**
  * Application collections - Dental Clinic Management
  * 
- * Properly normalized collections following relational DB best practices.
+ * All types derived from Valibot schemas for runtime safety.
  * All collections organized by functional domain.
  */
 interface AppCollections {
@@ -750,62 +830,93 @@ interface AppCollections {
  * 
  * This is THE MOST IMPORTANT part for automatic type inference!
  * 
- * This interface combines ALL your collection tables using TypeScript's
- * spread operator (&). This keeps things organized while maintaining
- * a single source of truth for type inference.
+ * All types are derived from Valibot schemas, giving you:
+ * ✅ Runtime validation
+ * ✅ Type safety
+ * ✅ Form validation
+ * ✅ Single source of truth
  * 
  * ⚠️  WORKFLOW: When adding a new collection
  * -------------------------------------------
- * 1. Define your record type above (e.g., PostsRecord)
- * 2. Add it to the appropriate collection table (e.g., AppCollections)
- * 3. That's it! It's automatically included here via spreading
+ * 1. Create Valibot schema (e.g., PostSchema)
+ * 2. Export inferred type: export type PostRecord = v.InferOutput<typeof PostSchema>
+ * 3. Add to AppCollections interface
+ * 4. That's it! Automatic type inference everywhere
  * 
- * 📊 ORGANIZATION:
- * ----------------
- * Collections are organized into logical tables:
- * - AuthCollections: users and auth-related collections
- * - AppCollections: your application-specific collections
- * - Add more tables as needed for organization
- * 
- * ❓ Why use tables?
+ * 📊 USAGE EXAMPLES:
  * ------------------
- * - Better organization (group related collections)
- * - Easier to scan and find collections
- * - Still get all the automatic type inference benefits
- * - No duplication - define once, spread here
  * 
- * 💡 TIP: If you forget to add a collection to a table, TypeScript will
- * remind you when you try to access custom fields (they won't exist on BaseRecord).
+ * // Runtime validation (validate API responses)
+ * const validPatient = v.parse(PatientSchema, apiData)
  * 
- * HOW IT WORKS:
+ * // Form validation with Modular Forms
+ * const [form] = createForm({
+ *   validate: valiForm(PatientSchema)
+ * })
+ * 
+ * // Type inference (no manual typing needed!)
+ * const patients = useCollection("patients") // ✨ Typed as PatientsRecord[]
+ * const createPatient = useCreateRecord("patients") // ✨ Knows all patient fields
+ * 
+ * // Use schema in validation
+ * <Field name="firstName">
+ *   {(field, props) => (
+ *     <TextInput {...props} value={field.value} error={field.error} />
+ *   )}
+ * </Field>
+ * 
+ * 💡 BENEFITS:
  * -------------
- * When you write:
- *   const todos = useCollection("todos")
+ * - Schema validates at runtime (catch bad API data)
+ * - Types auto-inferred (no manual interface definitions)
+ * - Use same schema for forms (one schema, many uses)
+ * - Built-in validation messages
+ * - Refactor once, update everywhere
  * 
- * TypeScript:
- * 1. Sees you passed the string "todos"
- * 2. Looks up "todos" in this CollectionRecords interface
- * 3. Finds it via AppCollections (spread with &)
- * 4. Returns TodoRecord
- * 5. You get full autocomplete for todo.title, todo.completed, etc.!
+ * 🎨 SCHEMA PATTERNS:
+ * -------------------
  * 
- * @example Adding a new collection
- * // 1. Define your type above
- * export interface PostsRecord extends BaseRecord {
- *   title: string
- *   content: string
- * }
+ * // Required string with validation
+ * firstName: v.pipe(v.string(), v.nonEmpty("First name is required"))
  * 
- * // 2. Add to AppCollections table
+ * // Optional email
+ * email: v.optional(v.pipe(v.string(), v.email()))
+ * 
+ * // Enum/picklist
+ * status: v.picklist(["active", "inactive", "archived"])
+ * 
+ * // Number with range
+ * age: v.pipe(v.number(), v.minValue(0), v.maxValue(150))
+ * 
+ * // Array of strings
+ * tags: v.array(v.string())
+ * 
+ * @example Adding a new collection with schema
+ * 
+ * // 1. Create schema
+ * export const PostSchema = v.intersect([
+ *   BaseRecordSchema,
+ *   v.object({
+ *     title: v.pipe(v.string(), v.nonEmpty("Title is required")),
+ *     content: v.string(),
+ *     published: v.boolean(),
+ *   }),
+ * ])
+ * 
+ * // 2. Export type
+ * export type PostRecord = v.InferOutput<typeof PostSchema>
+ * 
+ * // 3. Add to AppCollections
  * interface AppCollections {
  *   patients: PatientsRecord
  *   todos: TodoRecord
- *   posts: PostsRecord  // ← Add this line!
+ *   posts: PostRecord  // ← Add this line!
  * }
  * 
- * // 3. Now it works everywhere automatically:
- * const posts = useCollection("posts")  // Typed as PostsRecord[]! ✨
- * const createPost = useCreateRecord("posts")  // Knows PostsRecord fields! ✨
+ * // 4. Use everywhere with validation!
+ * const posts = useCollection("posts")  // ✨ Typed as PostRecord[]
+ * const validPost = v.parse(PostSchema, apiData)  // ✨ Runtime validation
+ * const [form] = createForm({ validate: valiForm(PostSchema) })  // ✨ Form validation
  */
 export interface CollectionRecords extends AuthCollections, AppCollections {
   // All collections from AuthCollections and AppCollections are included here
