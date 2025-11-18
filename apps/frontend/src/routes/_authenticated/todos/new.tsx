@@ -15,10 +15,19 @@ function AddTodoPage() {
   const navigate = useNavigate()
   const createTodo = useCreateRecord("todos")
 
+  // Get tomorrow's date in YYYY-MM-DD format for default due date
+  const getTomorrowDate = () => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    return tomorrow.toISOString().split('T')[0]
+  }
+
   const todoForm = createForm({
     schema: TodoFormSchema,
     initialInput: {
       completed: false,
+      dueDate: getTomorrowDate(),
+      priority: 'medium',
     },
     validate: 'blur',
     revalidate: 'input',
