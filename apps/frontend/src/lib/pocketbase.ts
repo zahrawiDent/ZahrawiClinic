@@ -37,6 +37,20 @@ pb.authStore.onChange((token, record) => {
 })
 
 // =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Get the full URL for a user's avatar
+ */
+export function getUserAvatarUrl(user: User | null | undefined): string | undefined {
+  if (!user || !user.avatar || !user.id) return undefined
+  
+  // PocketBase file URL format for users collection
+  return pb.files.getUrl(user as any, user.avatar)
+}
+
+// =============================================================================
 // AUTH FUNCTIONS - Simple, direct, and composable
 // =============================================================================
 

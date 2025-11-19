@@ -16,6 +16,7 @@
 export * from './base'
 
 // Auth
+export * from './auth'
 export * from './users'
 
 // Patient Management

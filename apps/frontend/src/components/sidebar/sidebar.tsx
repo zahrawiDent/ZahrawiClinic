@@ -1,4 +1,4 @@
-import { createSignal, Show, type JSX } from "solid-js"
+import { createSignal, Show, For, type JSX } from "solid-js"
 import { useLocation, Link } from "@tanstack/solid-router"
 
 export interface SidebarProps {
@@ -214,42 +214,132 @@ interface SidebarUserProps {
   role?: string
   avatar?: string
   onLogout?: () => void
+  menuItems?: Array<{
+    label: string
+    icon?: any
+    onClick?: () => void
+    href?: string
+    isDanger?: boolean
+  }>
 }
 
 export function SidebarUser(props: SidebarUserProps) {
   const { isCollapsed } = useSidebar()
+  const [isMenuOpen, setIsMenuOpen] = createSignal(false)
+  
+  // Close menu when clicking outside
+  const handleClickOutside = (e: MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('[data-user-menu]')) {
+      setIsMenuOpen(false)
+    }
+  }
+  
+  // Add/remove event listener
+  const toggleMenu = () => {
+    const newState = !isMenuOpen()
+    setIsMenuOpen(newState)
+    
+    if (newState) {
+      setTimeout(() => {
+        document.addEventListener('click', handleClickOutside)
+      }, 0)
+    } else {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }
 
   return (
-    <div class={`flex items-center gap-3 ${isCollapsed() ? "justify-center" : ""}`}>
-      <div class="w-10 h-10 bg-[var(--color-brand-primary)] rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
-        <Show when={props.avatar} fallback={
-          <span class="text-sm uppercase">
-            {props.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-          </span>
-        }>
-          <img src={props.avatar} alt={props.name} class="w-full h-full rounded-full object-cover" />
-        </Show>
-      </div>
-      <Show when={!isCollapsed()}>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-[var(--color-text-primary)] truncate">
-            {props.name}
-          </p>
-          <p class="text-xs text-[var(--color-text-secondary)] truncate">
-            {props.role || props.email}
-          </p>
+    <div class="relative" data-user-menu>
+      <button
+        onClick={toggleMenu}
+        class={`w-full flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--color-bg-tertiary)] transition-colors ${
+          isCollapsed() ? "justify-center" : ""
+        } ${isMenuOpen() ? "bg-[var(--color-bg-tertiary)]" : ""}`}
+      >
+        <div class="w-10 h-10 bg-gradient-to-br from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 shadow-md">
+          <Show when={props.avatar} fallback={
+            <span class="text-sm uppercase">
+              {props.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+            </span>
+          }>
+            <img src={props.avatar} alt={props.name} class="w-full h-full rounded-full object-cover" />
+          </Show>
         </div>
-        <Show when={props.onLogout}>
-          <button
-            onClick={props.onLogout}
-            class="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
-            title="Logout"
+        <Show when={!isCollapsed()}>
+          <div class="flex-1 min-w-0 text-left">
+            <p class="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+              {props.name}
+            </p>
+            <p class="text-xs text-[var(--color-text-secondary)] truncate">
+              {props.role || props.email}
+            </p>
+          </div>
+          <svg 
+            class={`w-4 h-4 text-[var(--color-text-secondary)] transition-transform ${
+              isMenuOpen() ? "rotate-180" : ""
+            }`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-          </button>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
         </Show>
+      </button>
+
+      {/* Dropdown Menu */}
+      <Show when={isMenuOpen() && !isCollapsed()}>
+        <div class="absolute bottom-full left-0 right-0 mb-2 bg-[var(--color-bg-elevated)] border border-[var(--color-border-primary)] rounded-lg shadow-xl overflow-hidden animate-slide-up">
+          <div class="py-2">
+            <Show when={props.menuItems && props.menuItems.length > 0}>
+              <For each={props.menuItems}>
+                {(item: { label: string; icon?: any; onClick?: () => void; href?: string; isDanger?: boolean }) => (
+                  <Show
+                    when={item.href}
+                    fallback={
+                      <button
+                        onClick={() => {
+                          item.onClick?.()
+                          setIsMenuOpen(false)
+                          document.removeEventListener('click', handleClickOutside)
+                        }}
+                        class={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                          item.isDanger
+                            ? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            : "text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]"
+                        }`}
+                      >
+                        <Show when={item.icon}>
+                          <div class="w-5 h-5 flex-shrink-0">
+                            {item.icon}
+                          </div>
+                        </Show>
+                        <span>{item.label}</span>
+                      </button>
+                    }
+                  >
+                    <Link
+                      to={item.href! as any}
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        document.removeEventListener('click', handleClickOutside)
+                      }}
+                      class="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+                    >
+                      <Show when={item.icon}>
+                        <div class="w-5 h-5 flex-shrink-0">
+                          {item.icon}
+                        </div>
+                      </Show>
+                      <span>{item.label}</span>
+                    </Link>
+                  </Show>
+                )}
+              </For>
+            </Show>
+          </div>
+        </div>
       </Show>
     </div>
   )

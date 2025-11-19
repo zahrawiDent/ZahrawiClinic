@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DentalChartV5RouteImport } from './routes/dental-chart-v5'
 import { Route as DentalChartV4RouteImport } from './routes/dental-chart-v4'
 import { Route as DentalChartV2RouteImport } from './routes/dental-chart-v2'
 import { Route as DentalChartEnhancedRouteImport } from './routes/dental-chart-enhanced'
@@ -33,6 +34,11 @@ import { Route as AuthenticatedPatientsNewRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPatientsIdRouteImport } from './routes/_authenticated/patients/$id'
 import { Route as AuthenticatedPatientsIdEditRouteImport } from './routes/_authenticated/patients/$id.edit'
 
+const DentalChartV5Route = DentalChartV5RouteImport.update({
+  id: '/dental-chart-v5',
+  path: '/dental-chart-v5',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DentalChartV4Route = DentalChartV4RouteImport.update({
   id: '/dental-chart-v4',
   path: '/dental-chart-v4',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
   '/dental-chart-v2': typeof DentalChartV2Route
   '/dental-chart-v4': typeof DentalChartV4Route
+  '/dental-chart-v5': typeof DentalChartV5Route
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/appointments': typeof AuthenticatedAppointmentsRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
   '/dental-chart-v2': typeof DentalChartV2Route
   '/dental-chart-v4': typeof DentalChartV4Route
+  '/dental-chart-v5': typeof DentalChartV5Route
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/appointments': typeof AuthenticatedAppointmentsRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
   '/dental-chart-v2': typeof DentalChartV2Route
   '/dental-chart-v4': typeof DentalChartV4Route
+  '/dental-chart-v5': typeof DentalChartV5Route
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_authenticated/appointments': typeof AuthenticatedAppointmentsRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/dental-chart-enhanced'
     | '/dental-chart-v2'
     | '/dental-chart-v4'
+    | '/dental-chart-v5'
     | '/login'
     | '/signup'
     | '/appointments'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/dental-chart-enhanced'
     | '/dental-chart-v2'
     | '/dental-chart-v4'
+    | '/dental-chart-v5'
     | '/login'
     | '/signup'
     | '/appointments'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/dental-chart-enhanced'
     | '/dental-chart-v2'
     | '/dental-chart-v4'
+    | '/dental-chart-v5'
     | '/_auth/login'
     | '/_auth/signup'
     | '/_authenticated/appointments'
@@ -311,12 +323,20 @@ export interface RootRouteChildren {
   DentalChartEnhancedRoute: typeof DentalChartEnhancedRoute
   DentalChartV2Route: typeof DentalChartV2Route
   DentalChartV4Route: typeof DentalChartV4Route
+  DentalChartV5Route: typeof DentalChartV5Route
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
 }
 
 declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
+    '/dental-chart-v5': {
+      id: '/dental-chart-v5'
+      path: '/dental-chart-v5'
+      fullPath: '/dental-chart-v5'
+      preLoaderRoute: typeof DentalChartV5RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dental-chart-v4': {
       id: '/dental-chart-v4'
       path: '/dental-chart-v4'
@@ -539,6 +559,7 @@ const rootRouteChildren: RootRouteChildren = {
   DentalChartEnhancedRoute: DentalChartEnhancedRoute,
   DentalChartV2Route: DentalChartV2Route,
   DentalChartV4Route: DentalChartV4Route,
+  DentalChartV5Route: DentalChartV5Route,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
 }
