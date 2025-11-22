@@ -16,6 +16,7 @@ export {
   DashboardIcon,
   AppointmentsIcon,
   PatientsIcon,
+  TasksIcon,
   TreatmentsIcon,
   MedicalRecordsIcon,
   BillingIcon,

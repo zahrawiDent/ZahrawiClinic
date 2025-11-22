@@ -8,7 +8,7 @@ import * as v from 'valibot'
 import { BaseRecordSchema } from './base'
 
 // Data fields (without base record fields)
-export const TodoDataSchema = v.object({
+export const TaskDataSchema = v.object({
   title: v.pipe(v.string(), v.nonEmpty("Title is required")),
   description: v.optional(v.string()),
   completed: v.boolean(),
@@ -20,11 +20,11 @@ export const TodoDataSchema = v.object({
 })
 
 // Full schema with base record fields (for API responses)
-export const TodoSchema = v.intersect([BaseRecordSchema, TodoDataSchema])
+export const TaskSchema = v.intersect([BaseRecordSchema, TaskDataSchema])
 
 // Schema for creating/updating (without base record fields)
-export const TodoFormSchema = TodoDataSchema
+export const TaskFormSchema = TaskDataSchema
 
 // Types
-export type TodoRecord = v.InferOutput<typeof TodoSchema>
-export type TodoFormData = v.InferOutput<typeof TodoFormSchema>
+export type TaskRecord = v.InferOutput<typeof TaskSchema>
+export type TaskFormData = v.InferOutput<typeof TaskFormSchema>

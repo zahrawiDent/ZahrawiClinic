@@ -26,10 +26,10 @@ import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppointmentsRouteImport } from './routes/_authenticated/appointments'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AuthenticatedTodosIndexRouteImport } from './routes/_authenticated/todos/index'
+import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedPatientsIndexRouteImport } from './routes/_authenticated/patients/index'
-import { Route as AuthenticatedTodosNewRouteImport } from './routes/_authenticated/todos/new'
-import { Route as AuthenticatedTodosIdRouteImport } from './routes/_authenticated/todos/$id'
+import { Route as AuthenticatedTasksNewRouteImport } from './routes/_authenticated/tasks/new'
+import { Route as AuthenticatedTasksIdRouteImport } from './routes/_authenticated/tasks/$id'
 import { Route as AuthenticatedPatientsNewRouteImport } from './routes/_authenticated/patients/new'
 import { Route as AuthenticatedPatientsIdRouteImport } from './routes/_authenticated/patients/$id'
 import { Route as AuthenticatedPatientsIdEditRouteImport } from './routes/_authenticated/patients/$id.edit'
@@ -120,9 +120,9 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedTodosIndexRoute = AuthenticatedTodosIndexRouteImport.update({
-  id: '/todos/',
-  path: '/todos/',
+const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPatientsIndexRoute =
@@ -131,14 +131,14 @@ const AuthenticatedPatientsIndexRoute =
     path: '/patients/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTodosNewRoute = AuthenticatedTodosNewRouteImport.update({
-  id: '/todos/new',
-  path: '/todos/new',
+const AuthenticatedTasksNewRoute = AuthenticatedTasksNewRouteImport.update({
+  id: '/tasks/new',
+  path: '/tasks/new',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedTodosIdRoute = AuthenticatedTodosIdRouteImport.update({
-  id: '/todos/$id',
-  path: '/todos/$id',
+const AuthenticatedTasksIdRoute = AuthenticatedTasksIdRouteImport.update({
+  id: '/tasks/$id',
+  path: '/tasks/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPatientsNewRoute =
@@ -178,10 +178,10 @@ export interface FileRoutesByFullPath {
   '/treatments': typeof AuthenticatedTreatmentsRoute
   '/patients/$id': typeof AuthenticatedPatientsIdRouteWithChildren
   '/patients/new': typeof AuthenticatedPatientsNewRoute
-  '/todos/$id': typeof AuthenticatedTodosIdRoute
-  '/todos/new': typeof AuthenticatedTodosNewRoute
+  '/tasks/$id': typeof AuthenticatedTasksIdRoute
+  '/tasks/new': typeof AuthenticatedTasksNewRoute
   '/patients': typeof AuthenticatedPatientsIndexRoute
-  '/todos': typeof AuthenticatedTodosIndexRoute
+  '/tasks': typeof AuthenticatedTasksIndexRoute
   '/patients/$id/edit': typeof AuthenticatedPatientsIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -203,10 +203,10 @@ export interface FileRoutesByTo {
   '/treatments': typeof AuthenticatedTreatmentsRoute
   '/patients/$id': typeof AuthenticatedPatientsIdRouteWithChildren
   '/patients/new': typeof AuthenticatedPatientsNewRoute
-  '/todos/$id': typeof AuthenticatedTodosIdRoute
-  '/todos/new': typeof AuthenticatedTodosNewRoute
+  '/tasks/$id': typeof AuthenticatedTasksIdRoute
+  '/tasks/new': typeof AuthenticatedTasksNewRoute
   '/patients': typeof AuthenticatedPatientsIndexRoute
-  '/todos': typeof AuthenticatedTodosIndexRoute
+  '/tasks': typeof AuthenticatedTasksIndexRoute
   '/patients/$id/edit': typeof AuthenticatedPatientsIdEditRoute
 }
 export interface FileRoutesById {
@@ -230,10 +230,10 @@ export interface FileRoutesById {
   '/_authenticated/treatments': typeof AuthenticatedTreatmentsRoute
   '/_authenticated/patients/$id': typeof AuthenticatedPatientsIdRouteWithChildren
   '/_authenticated/patients/new': typeof AuthenticatedPatientsNewRoute
-  '/_authenticated/todos/$id': typeof AuthenticatedTodosIdRoute
-  '/_authenticated/todos/new': typeof AuthenticatedTodosNewRoute
+  '/_authenticated/tasks/$id': typeof AuthenticatedTasksIdRoute
+  '/_authenticated/tasks/new': typeof AuthenticatedTasksNewRoute
   '/_authenticated/patients/': typeof AuthenticatedPatientsIndexRoute
-  '/_authenticated/todos/': typeof AuthenticatedTodosIndexRoute
+  '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/patients/$id/edit': typeof AuthenticatedPatientsIdEditRoute
 }
 export interface FileRouteTypes {
@@ -257,10 +257,10 @@ export interface FileRouteTypes {
     | '/treatments'
     | '/patients/$id'
     | '/patients/new'
-    | '/todos/$id'
-    | '/todos/new'
+    | '/tasks/$id'
+    | '/tasks/new'
     | '/patients'
-    | '/todos'
+    | '/tasks'
     | '/patients/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -282,10 +282,10 @@ export interface FileRouteTypes {
     | '/treatments'
     | '/patients/$id'
     | '/patients/new'
-    | '/todos/$id'
-    | '/todos/new'
+    | '/tasks/$id'
+    | '/tasks/new'
     | '/patients'
-    | '/todos'
+    | '/tasks'
     | '/patients/$id/edit'
   id:
     | '__root__'
@@ -308,10 +308,10 @@ export interface FileRouteTypes {
     | '/_authenticated/treatments'
     | '/_authenticated/patients/$id'
     | '/_authenticated/patients/new'
-    | '/_authenticated/todos/$id'
-    | '/_authenticated/todos/new'
+    | '/_authenticated/tasks/$id'
+    | '/_authenticated/tasks/new'
     | '/_authenticated/patients/'
-    | '/_authenticated/todos/'
+    | '/_authenticated/tasks/'
     | '/_authenticated/patients/$id/edit'
   fileRoutesById: FileRoutesById
 }
@@ -449,11 +449,11 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/todos/': {
-      id: '/_authenticated/todos/'
-      path: '/todos'
-      fullPath: '/todos'
-      preLoaderRoute: typeof AuthenticatedTodosIndexRouteImport
+    '/_authenticated/tasks/': {
+      id: '/_authenticated/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof AuthenticatedTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/patients/': {
@@ -463,18 +463,18 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof AuthenticatedPatientsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/todos/new': {
-      id: '/_authenticated/todos/new'
-      path: '/todos/new'
-      fullPath: '/todos/new'
-      preLoaderRoute: typeof AuthenticatedTodosNewRouteImport
+    '/_authenticated/tasks/new': {
+      id: '/_authenticated/tasks/new'
+      path: '/tasks/new'
+      fullPath: '/tasks/new'
+      preLoaderRoute: typeof AuthenticatedTasksNewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/todos/$id': {
-      id: '/_authenticated/todos/$id'
-      path: '/todos/$id'
-      fullPath: '/todos/$id'
-      preLoaderRoute: typeof AuthenticatedTodosIdRouteImport
+    '/_authenticated/tasks/$id': {
+      id: '/_authenticated/tasks/$id'
+      path: '/tasks/$id'
+      fullPath: '/tasks/$id'
+      preLoaderRoute: typeof AuthenticatedTasksIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/patients/new': {
@@ -525,10 +525,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTreatmentsRoute: typeof AuthenticatedTreatmentsRoute
   AuthenticatedPatientsIdRoute: typeof AuthenticatedPatientsIdRouteWithChildren
   AuthenticatedPatientsNewRoute: typeof AuthenticatedPatientsNewRoute
-  AuthenticatedTodosIdRoute: typeof AuthenticatedTodosIdRoute
-  AuthenticatedTodosNewRoute: typeof AuthenticatedTodosNewRoute
+  AuthenticatedTasksIdRoute: typeof AuthenticatedTasksIdRoute
+  AuthenticatedTasksNewRoute: typeof AuthenticatedTasksNewRoute
   AuthenticatedPatientsIndexRoute: typeof AuthenticatedPatientsIndexRoute
-  AuthenticatedTodosIndexRoute: typeof AuthenticatedTodosIndexRoute
+  AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -541,10 +541,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTreatmentsRoute: AuthenticatedTreatmentsRoute,
   AuthenticatedPatientsIdRoute: AuthenticatedPatientsIdRouteWithChildren,
   AuthenticatedPatientsNewRoute: AuthenticatedPatientsNewRoute,
-  AuthenticatedTodosIdRoute: AuthenticatedTodosIdRoute,
-  AuthenticatedTodosNewRoute: AuthenticatedTodosNewRoute,
+  AuthenticatedTasksIdRoute: AuthenticatedTasksIdRoute,
+  AuthenticatedTasksNewRoute: AuthenticatedTasksNewRoute,
   AuthenticatedPatientsIndexRoute: AuthenticatedPatientsIndexRoute,
-  AuthenticatedTodosIndexRoute: AuthenticatedTodosIndexRoute,
+  AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

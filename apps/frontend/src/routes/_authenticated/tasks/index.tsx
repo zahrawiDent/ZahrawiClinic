@@ -1,23 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/solid-router"
 import { For, Show, Suspense, createSignal, createMemo } from "solid-js"
 import { useCollection, useDeleteRecord, useUpdateRecord, useRealtimeCollection } from "@/lib/queries"
-import { type TodoRecord } from "@/types/schemas"
+import { type TaskRecord } from "@/types/schemas"
 import { useConfirmationDialog } from "@/components/confirmation-dialog"
 import { PageLayout, PageContainer, StatsCard, SearchBar, FilterGroup, type FilterOption } from "@/components/ui"
 import { Breadcrumbs } from "@/components/breadcrumbs"
 
-export const Route = createFileRoute("/_authenticated/todos/")({
-  component: TodosPage,
+export const Route = createFileRoute("/_authenticated/tasks/")({
+  component: TasksPage,
 })
 
-function TodosPage() {
-  const todos = useCollection("todos", { sort: "-created" })
-  const deleteTodo = useDeleteRecord("todos")
-  const updateTodo = useUpdateRecord("todos")
+function TasksPage() {
+  const tasks = useCollection("tasks", { sort: "-created" })
+  const deleteTask = useDeleteRecord("tasks")
+  const updateTask = useUpdateRecord("tasks")
   const confirmDialog = useConfirmationDialog()
 
   // Enable realtime sync
-  useRealtimeCollection("todos")
+  useRealtimeCollection("tasks")
 
   // Local state for filters and search
   const [searchQuery, setSearchQuery] = createSignal("")
@@ -49,36 +49,36 @@ function TodosPage() {
     { value: "other", label: "Other", icon: "📌" },
   ]
 
-  // Computed filtered and sorted todos
-  const filteredTodos = createMemo(() => {
-    const items = todos.data?.items || []
-    
+  // Computed filtered and sorted tasks
+  const filteredTasks = createMemo(() => {
+    const items = tasks.data?.items || []
+
     return items
-      .filter((todo) => {
+      .filter((task) => {
         // Search filter
         const query = searchQuery().toLowerCase()
         const matchesSearch =
           !query ||
-          todo.title.toLowerCase().includes(query) ||
-          todo.description?.toLowerCase().includes(query)
+          task.title.toLowerCase().includes(query) ||
+          task.description?.toLowerCase().includes(query)
 
         // Status filter
         const matchesStatus =
           !statusFilter() ||
-          (statusFilter() === "completed" && todo.completed) ||
-          (statusFilter() === "active" && !todo.completed)
+          (statusFilter() === "completed" && task.completed) ||
+          (statusFilter() === "active" && !task.completed)
 
         // Priority filter
-        const matchesPriority = !priorityFilter() || todo.priority === priorityFilter()
+        const matchesPriority = !priorityFilter() || task.priority === priorityFilter()
 
         // Category filter
-        const matchesCategory = !categoryFilter() || todo.category === categoryFilter()
+        const matchesCategory = !categoryFilter() || task.category === categoryFilter()
 
         return matchesSearch && matchesStatus && matchesPriority && matchesCategory
       })
       .sort((a, b) => {
         const order = sortOrder() === "asc" ? 1 : -1
-        
+
         switch (sortBy()) {
           case "title":
             return order * a.title.localeCompare(b.title)
@@ -102,7 +102,7 @@ function TodosPage() {
 
   // Statistics
   const stats = createMemo(() => {
-    const items = filteredTodos()
+    const items = filteredTasks()
     return {
       total: items.length,
       completed: items.filter((t) => t.completed).length,
@@ -111,23 +111,23 @@ function TodosPage() {
     }
   })
 
-  const handleToggleComplete = (todo: TodoRecord) => {
-    updateTodo.mutate({
-      id: todo.id,
-      completed: !todo.completed,
+  const handleToggleComplete = (Task: TaskRecord) => {
+    updateTask.mutate({
+      id: Task.id,
+      completed: !Task.completed,
     })
   }
 
   const handleDelete = (id: string, title: string) => {
     confirmDialog.confirm({
-      title: "Delete Todo",
+      title: "Delete Task",
       message: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
       confirmText: "Delete",
       cancelText: "Cancel",
       isDangerous: true,
       onConfirm: () => {
         setDeletingId(id)
-        deleteTodo.mutate(id, {
+        deleteTask.mutate(id, {
           onSettled: () => setDeletingId(null),
         })
       },
@@ -194,16 +194,16 @@ function TodosPage() {
           <div class="mb-6">
             <div class="flex items-center justify-between mb-2">
               <h1 class="text-3xl font-bold text-[var(--color-text-primary)]">
-                ✅ Todo Management
+                ✅ Task Management
               </h1>
               <Link
-                to="/todos/new"
+                to="/tasks/new"
                 class="flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-primary)] text-white font-medium rounded-lg hover:bg-[var(--color-brand-primary-hover)] transition shadow-md"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Add Todo
+                Add Task
               </Link>
             </div>
             <p class="text-[var(--color-text-secondary)]">
@@ -226,7 +226,7 @@ function TodosPage() {
               <SearchBar
                 value={searchQuery()}
                 onSearch={setSearchQuery}
-                placeholder="Search todos by title or description..."
+                placeholder="Search tasks by title or description..."
               />
 
               {/* Filters */}
@@ -268,7 +268,7 @@ function TodosPage() {
             </div>
           </div>
 
-          {/* Todos List */}
+          {/* Tasks List */}
           <div class="bg-[var(--color-bg-elevated)] rounded-lg shadow-lg border border-[var(--color-border-primary)] overflow-hidden">
             {/* Sort Controls */}
             <div class="bg-[var(--color-bg-secondary)] px-6 py-3 border-b border-[var(--color-border-primary)]">
@@ -276,41 +276,37 @@ function TodosPage() {
                 <span class="text-[var(--color-text-secondary)]">Sort by:</span>
                 <button
                   onClick={() => toggleSort("created")}
-                  class={`px-3 py-1 rounded transition-colors ${
-                    sortBy() === "created"
-                      ? "bg-[var(--color-brand-primary)] text-white"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]"
-                  }`}
+                  class={`px-3 py-1 rounded transition-colors ${sortBy() === "created"
+                    ? "bg-[var(--color-brand-primary)] text-white"
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]"
+                    }`}
                 >
                   Date {sortBy() === "created" && (sortOrder() === "asc" ? "↑" : "↓")}
                 </button>
                 <button
                   onClick={() => toggleSort("priority")}
-                  class={`px-3 py-1 rounded transition-colors ${
-                    sortBy() === "priority"
-                      ? "bg-[var(--color-brand-primary)] text-white"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]"
-                  }`}
+                  class={`px-3 py-1 rounded transition-colors ${sortBy() === "priority"
+                    ? "bg-[var(--color-brand-primary)] text-white"
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]"
+                    }`}
                 >
                   Priority {sortBy() === "priority" && (sortOrder() === "asc" ? "↑" : "↓")}
                 </button>
                 <button
                   onClick={() => toggleSort("dueDate")}
-                  class={`px-3 py-1 rounded transition-colors ${
-                    sortBy() === "dueDate"
-                      ? "bg-[var(--color-brand-primary)] text-white"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]"
-                  }`}
+                  class={`px-3 py-1 rounded transition-colors ${sortBy() === "dueDate"
+                    ? "bg-[var(--color-brand-primary)] text-white"
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]"
+                    }`}
                 >
                   Due Date {sortBy() === "dueDate" && (sortOrder() === "asc" ? "↑" : "↓")}
                 </button>
                 <button
                   onClick={() => toggleSort("title")}
-                  class={`px-3 py-1 rounded transition-colors ${
-                    sortBy() === "title"
-                      ? "bg-[var(--color-brand-primary)] text-white"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]"
-                  }`}
+                  class={`px-3 py-1 rounded transition-colors ${sortBy() === "title"
+                    ? "bg-[var(--color-brand-primary)] text-white"
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]"
+                    }`}
                 >
                   Title {sortBy() === "title" && (sortOrder() === "asc" ? "↑" : "↓")}
                 </button>
@@ -320,17 +316,17 @@ function TodosPage() {
               fallback={
                 <div class="p-12 text-center">
                   <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-[var(--color-brand-primary)] border-t-transparent"></div>
-                  <p class="mt-4 text-[var(--color-text-tertiary)]">Loading todos...</p>
+                  <p class="mt-4 text-[var(--color-text-tertiary)]">Loading Tasks...</p>
                 </div>
               }
             >
               <Show
-                when={!todos.isLoading && todos.data}
+                when={!tasks.isLoading && tasks.data}
                 fallback={
                   <div class="p-8 text-center">
-                    <Show when={todos.isError}>
+                    <Show when={tasks.isError}>
                       <p class="text-[var(--color-error)]">
-                        Error: {todos.error?.message || "Failed to load todos"}
+                        Error: {tasks.error?.message || "Failed to load tasks"}
                       </p>
                     </Show>
                   </div>
@@ -338,26 +334,26 @@ function TodosPage() {
               >
                 <div class="divide-y divide-[var(--color-border-primary)]">
                   <For
-                    each={filteredTodos()}
+                    each={filteredTasks()}
                     fallback={
                       <div class="p-12 text-center">
                         <div class="text-6xl mb-4">
                           {hasActiveFilters() ? "�" : "�📝"}
                         </div>
                         <h3 class="text-lg font-medium text-[var(--color-text-primary)] mb-2">
-                          {hasActiveFilters() ? "No matching todos" : "No todos yet"}
+                          {hasActiveFilters() ? "No matching tasks" : "No tasks yet"}
                         </h3>
                         <p class="text-[var(--color-text-tertiary)] mb-4">
                           {hasActiveFilters()
                             ? "Try adjusting your filters or search query"
-                            : "Get started by creating your first todo"}
+                            : "Get started by creating your first task"}
                         </p>
                         <Show when={!hasActiveFilters()}>
                           <Link
-                            to="/todos/new"
+                            to="/tasks/new"
                             class="inline-block px-6 py-2 bg-[var(--color-brand-primary)] text-white rounded-lg hover:bg-[var(--color-brand-primary-hover)] transition"
                           >
-                            Create your first todo
+                            Create your first task
                           </Link>
                         </Show>
                         <Show when={hasActiveFilters()}>
@@ -371,11 +367,11 @@ function TodosPage() {
                       </div>
                     }
                   >
-                    {(todo) => {
-                      const isDeleting = () => deletingId() === todo.id
+                    {(task) => {
+                      const isDeleting = () => deletingId() === task.id
                       const isOverdue = () => {
-                        if (!todo.dueDate || todo.completed) return false
-                        return new Date(todo.dueDate) < new Date()
+                        if (!task.dueDate || task.completed) return false
+                        return new Date(task.dueDate) < new Date()
                       }
 
                       return (
@@ -389,15 +385,15 @@ function TodosPage() {
                             <div class="flex items-start gap-4">
                               {/* Checkbox */}
                               <button
-                                onClick={() => handleToggleComplete(todo)}
+                                onClick={() => handleToggleComplete(task)}
                                 class="mt-1 w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all"
                                 classList={{
-                                  "border-[var(--color-success)] bg-[var(--color-success)]": todo.completed,
-                                  "border-[var(--color-border-secondary)] hover:border-[var(--color-success)]": !todo.completed,
+                                  "border-[var(--color-success)] bg-[var(--color-success)]": task.completed,
+                                  "border-[var(--color-border-secondary)] hover:border-[var(--color-success)]": !task.completed,
                                 }}
-                                title={todo.completed ? "Mark as incomplete" : "Mark as complete"}
+                                title={task.completed ? "Mark as incomplete" : "Mark as complete"}
                               >
-                                <Show when={todo.completed}>
+                                <Show when={task.completed}>
                                   <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                                   </svg>
@@ -409,52 +405,49 @@ function TodosPage() {
                                 <div class="flex items-start justify-between gap-4 mb-2">
                                   <div class="flex-1 min-w-0">
                                     <Link
-                                      to="/todos/$id"
-                                      params={{ id: todo.id }}
+                                      to="/tasks/$id"
+                                      params={{ id: task.id }}
                                       class="block group"
                                     >
                                       <h3
-                                        class={`text-base font-semibold mb-1 group-hover:text-[var(--color-brand-primary)] transition-colors ${
-                                          todo.completed
-                                            ? "line-through text-[var(--color-text-tertiary)]"
-                                            : "text-[var(--color-text-primary)]"
-                                        }`}
+                                        class={`text-base font-semibold mb-1 group-hover:text-[var(--color-brand-primary)] transition-colors ${task.completed
+                                          ? "line-through text-[var(--color-text-tertiary)]"
+                                          : "text-[var(--color-text-primary)]"
+                                          }`}
                                       >
-                                        {todo.title}
+                                        {task.title}
                                       </h3>
                                     </Link>
-                                    <Show when={todo.description}>
+                                    <Show when={task.description}>
                                       <p
-                                        class={`text-sm line-clamp-2 ${
-                                          todo.completed
-                                            ? "text-[var(--color-text-tertiary)]"
-                                            : "text-[var(--color-text-secondary)]"
-                                        }`}
+                                        class={`text-sm line-clamp-2 ${task.completed
+                                          ? "text-[var(--color-text-tertiary)]"
+                                          : "text-[var(--color-text-secondary)]"
+                                          }`}
                                       >
-                                        {todo.description}
+                                        {task.description}
                                       </p>
                                     </Show>
                                   </div>
 
                                   {/* Priority Badge */}
-                                  <Show when={todo.priority}>
+                                  <Show when={task.priority}>
                                     <span
                                       class={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getPriorityColor(
-                                        todo.priority
+                                        task.priority
                                       )} bg-opacity-10`}
                                       style={{
-                                        "background-color": `${
-                                          todo.priority === "urgent"
-                                            ? "rgba(220, 38, 38, 0.1)"
-                                            : todo.priority === "high"
+                                        "background-color": `${task.priority === "urgent"
+                                          ? "rgba(220, 38, 38, 0.1)"
+                                          : task.priority === "high"
                                             ? "rgba(249, 115, 22, 0.1)"
-                                            : todo.priority === "medium"
-                                            ? "rgba(234, 179, 8, 0.1)"
-                                            : "rgba(156, 163, 175, 0.1)"
-                                        }`,
+                                            : task.priority === "medium"
+                                              ? "rgba(234, 179, 8, 0.1)"
+                                              : "rgba(156, 163, 175, 0.1)"
+                                          }`,
                                       }}
                                     >
-                                      {todo.priority?.toUpperCase()}
+                                      {task.priority?.toUpperCase()}
                                     </span>
                                   </Show>
                                 </div>
@@ -462,15 +455,15 @@ function TodosPage() {
                                 {/* Metadata */}
                                 <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--color-text-tertiary)]">
                                   {/* Category */}
-                                  <Show when={todo.category}>
+                                  <Show when={task.category}>
                                     <span class="flex items-center gap-1">
-                                      <span>{getCategoryIcon(todo.category)}</span>
-                                      <span class="capitalize">{todo.category?.replace("_", " ")}</span>
+                                      <span>{getCategoryIcon(task.category)}</span>
+                                      <span class="capitalize">{task.category?.replace("_", " ")}</span>
                                     </span>
                                   </Show>
 
                                   {/* Due Date */}
-                                  <Show when={todo.dueDate}>
+                                  <Show when={task.dueDate}>
                                     <span
                                       class="flex items-center gap-1"
                                       classList={{
@@ -489,9 +482,9 @@ function TodosPage() {
                                         {isOverdue() && "⚠️ "}
                                         {(() => {
                                           try {
-                                            return new Date(todo.dueDate!).toLocaleDateString()
+                                            return new Date(task.dueDate!).toLocaleDateString()
                                           } catch {
-                                            return todo.dueDate
+                                            return task.dueDate
                                           }
                                         })()}
                                       </span>
@@ -511,7 +504,7 @@ function TodosPage() {
                                     <span>
                                       {(() => {
                                         try {
-                                          return new Date(todo.created).toLocaleDateString()
+                                          return new Date(task.created).toLocaleDateString()
                                         } catch {
                                           return "Unknown"
                                         }
@@ -524,8 +517,8 @@ function TodosPage() {
                               {/* Actions */}
                               <div class="flex items-center gap-2 flex-shrink-0">
                                 <Link
-                                  to="/todos/$id"
-                                  params={{ id: todo.id }}
+                                  to="/tasks/$id"
+                                  params={{ id: task.id }}
                                   class="p-2 text-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-bg)] rounded-lg transition-colors"
                                   title="View/Edit"
                                 >
@@ -539,7 +532,7 @@ function TodosPage() {
                                   </svg>
                                 </Link>
                                 <button
-                                  onClick={() => handleDelete(todo.id, todo.title)}
+                                  onClick={() => handleDelete(task.id, task.title)}
                                   disabled={isDeleting()}
                                   class="p-2 text-[var(--color-error)] hover:bg-[var(--color-error-bg)] rounded-lg transition-colors disabled:opacity-50"
                                   title="Delete"

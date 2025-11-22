@@ -5,15 +5,15 @@ import { toast } from "@/components/toast"
 import { createForm, Field, Form } from '@formisch/solid'
 import type { SubmitHandler } from '@formisch/solid'
 import { TextInput, Textarea, Select, Checkbox, Button } from "@/components/forms"
-import { TodoFormSchema } from "@/types/schemas"
+import { TaskFormSchema } from "@/types/schemas"
 
-export const Route = createFileRoute('/_authenticated/todos/new')({
-  component: AddTodoPage,
+export const Route = createFileRoute('/_authenticated/tasks/new')({
+  component: AddTaskPage,
 })
 
-function AddTodoPage() {
+function AddTaskPage() {
   const navigate = useNavigate()
-  const createTodo = useCreateRecord("todos")
+  const createTask = useCreateRecord("tasks")
 
   // Get tomorrow's date in YYYY-MM-DD format for default due date
   const getTomorrowDate = () => {
@@ -22,8 +22,8 @@ function AddTodoPage() {
     return tomorrow.toISOString().split('T')[0]
   }
 
-  const todoForm = createForm({
-    schema: TodoFormSchema,
+  const taskForm = createForm({
+    schema: TaskFormSchema,
     initialInput: {
       completed: false,
       dueDate: getTomorrowDate(),
@@ -33,15 +33,15 @@ function AddTodoPage() {
     revalidate: 'input',
   })
 
-  const handleSubmit: SubmitHandler<typeof TodoFormSchema> = async (values) => {
+  const handleSubmit: SubmitHandler<typeof TaskFormSchema> = async (values) => {
     try {
-      console.log('📝 Submitting todo:', values)
-      await createTodo.mutateAsync(values)
-      toast.success('Todo created successfully!')
-      navigate({ to: '/todos' })
+      console.log('📝 Submitting task:', values)
+      await createTask.mutateAsync(values)
+      toast.success('Task created successfully!')
+      navigate({ to: '/tasks' })
     } catch (error: any) {
-      console.error('❌ Error creating todo:', error)
-      toast.error(error.message || 'Failed to create todo')
+      console.error('❌ Error creating task:', error)
+      toast.error(error.message || 'Failed to create task')
     }
   }
 
@@ -50,7 +50,7 @@ function AddTodoPage() {
       <div class="max-w-3xl mx-auto">
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-2">
-            Add New Todo
+            Add New Task
           </h1>
           <p class="text-[var(--color-text-secondary)]">
             Create a new task to track and manage your work
@@ -58,7 +58,7 @@ function AddTodoPage() {
         </div>
 
         <div class="bg-[var(--color-bg-primary)] rounded-xl shadow-sm border border-[var(--color-border-primary)] p-6 sm:p-8">
-          <Form of={todoForm} onSubmit={handleSubmit} class="space-y-8">
+          <Form of={taskForm} onSubmit={handleSubmit} class="space-y-8">
             <div class="space-y-6">
               <div>
                 <h2 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
@@ -66,7 +66,7 @@ function AddTodoPage() {
                 </h2>
 
                 <div class="mb-5">
-                  <Field of={todoForm} path={['title']}>
+                  <Field of={taskForm} path={['title']}>
                     {(field) => (
                       <TextInput
                         {...field.props}
@@ -81,7 +81,7 @@ function AddTodoPage() {
                 </div>
 
                 <div class="mb-5">
-                  <Field of={todoForm} path={['description']}>
+                  <Field of={taskForm} path={['description']}>
                     {(field) => (
                       <Textarea
                         {...field.props}
@@ -96,7 +96,7 @@ function AddTodoPage() {
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <Field of={todoForm} path={['priority']}>
+                  <Field of={taskForm} path={['priority']}>
                     {(field) => (
                       <Select
                         {...field.props}
@@ -114,7 +114,7 @@ function AddTodoPage() {
                     )}
                   </Field>
 
-                  <Field of={todoForm} path={['category']}>
+                  <Field of={taskForm} path={['category']}>
                     {(field) => (
                       <Select
                         {...field.props}
@@ -136,7 +136,7 @@ function AddTodoPage() {
                 </div>
 
                 <div class="mt-5">
-                  <Field of={todoForm} path={['dueDate']}>
+                  <Field of={taskForm} path={['dueDate']}>
                     {(field) => (
                       <TextInput
                         {...field.props}
@@ -158,7 +158,7 @@ function AddTodoPage() {
                 </h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <Field of={todoForm} path={['assignedTo']}>
+                  <Field of={taskForm} path={['assignedTo']}>
                     {(field) => (
                       <TextInput
                         {...field.props}
@@ -170,7 +170,7 @@ function AddTodoPage() {
                     )}
                   </Field>
 
-                  <Field of={todoForm} path={['relatedPatient']}>
+                  <Field of={taskForm} path={['relatedPatient']}>
                     {(field) => (
                       <TextInput
                         {...field.props}
@@ -190,7 +190,7 @@ function AddTodoPage() {
             </div>
 
             <div class="pt-6 border-t border-[var(--color-border-primary)]">
-              <Field of={todoForm} path={['completed']}>
+              <Field of={taskForm} path={['completed']}>
                 {(field) => (
                   <Checkbox
                     {...field.props}
@@ -205,8 +205,8 @@ function AddTodoPage() {
               <Button
                 type="submit"
                 variant="primary"
-                loading={todoForm.isSubmitting}
-                disabled={todoForm.isSubmitting || !todoForm.isDirty}
+                loading={taskForm.isSubmitting}
+                disabled={taskForm.isSubmitting || !taskForm.isDirty}
               >
                 Create Task
               </Button>
@@ -214,8 +214,8 @@ function AddTodoPage() {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => navigate({ to: "/todos" })}
-                disabled={todoForm.isSubmitting}
+                onClick={() => navigate({ to: "/tasks" })}
+                disabled={taskForm.isSubmitting}
               >
                 Cancel
               </Button>

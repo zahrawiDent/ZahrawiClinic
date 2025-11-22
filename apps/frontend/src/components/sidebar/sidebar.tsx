@@ -256,6 +256,7 @@ export function SidebarUser(props: SidebarUserProps) {
         class={`w-full flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--color-bg-tertiary)] transition-colors ${
           isCollapsed() ? "justify-center" : ""
         } ${isMenuOpen() ? "bg-[var(--color-bg-tertiary)]" : ""}`}
+        title={isCollapsed() ? props.name : undefined}
       >
         <div class="w-10 h-10 bg-gradient-to-br from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 shadow-md">
           <Show when={props.avatar} fallback={
@@ -288,9 +289,27 @@ export function SidebarUser(props: SidebarUserProps) {
         </Show>
       </button>
 
-      {/* Dropdown Menu */}
-      <Show when={isMenuOpen() && !isCollapsed()}>
-        <div class="absolute bottom-full left-0 right-0 mb-2 bg-[var(--color-bg-elevated)] border border-[var(--color-border-primary)] rounded-lg shadow-xl overflow-hidden animate-slide-up">
+      {/* Dropdown Menu - Works for both collapsed and expanded states */}
+      <Show when={isMenuOpen()}>
+        <div 
+          class={`absolute bg-[var(--color-bg-elevated)] border border-[var(--color-border-primary)] rounded-lg shadow-xl overflow-hidden animate-slide-up ${
+            isCollapsed() 
+              ? "bottom-0 left-full ml-2 w-56" 
+              : "bottom-full left-0 right-0 mb-2"
+          }`}
+        >
+          {/* User info header when collapsed */}
+          <Show when={isCollapsed()}>
+            <div class="px-4 py-3 border-b border-[var(--color-border-primary)]">
+              <p class="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+                {props.name}
+              </p>
+              <p class="text-xs text-[var(--color-text-secondary)] truncate">
+                {props.role || props.email}
+              </p>
+            </div>
+          </Show>
+          
           <div class="py-2">
             <Show when={props.menuItems && props.menuItems.length > 0}>
               <For each={props.menuItems}>

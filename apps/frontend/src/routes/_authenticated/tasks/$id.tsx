@@ -4,25 +4,25 @@ import { toast } from "@/components/toast"
 import { createForm, Field, Form, reset } from '@formisch/solid'
 import type { SubmitHandler } from '@formisch/solid'
 import { TextInput, Textarea, Select, Checkbox, Button } from "@/components/forms"
-import { TodoFormSchema } from "@/types/schemas"
+import { TaskFormSchema } from "@/types/schemas"
 import { createEffect, Show } from "solid-js"
 import { ConfirmationDialog } from "@/components/confirmation-dialog"
 import { createSignal } from "solid-js"
 
-export const Route = createFileRoute('/_authenticated/todos/$id')({
-  component: EditTodoPage,
+export const Route = createFileRoute('/_authenticated/tasks/$id')({
+  component: EditTaskPage,
 })
 
-function EditTodoPage() {
+function EditTaskPage() {
   const params = Route.useParams()
   const navigate = useNavigate()
-  const todoQuery = useRecord("todos", () => params().id)
-  const updateTodo = useUpdateRecord("todos")
-  const deleteTodo = useDeleteRecord("todos")
+  const taskQuery = useRecord("tasks", () => params().id)
+  const updateTask = useUpdateRecord("tasks")
+  const deleteTask = useDeleteRecord("tasks")
   const [showDeleteDialog, setShowDeleteDialog] = createSignal(false)
 
-  const todoForm = createForm({
-    schema: TodoFormSchema,
+  const taskForm = createForm({
+    schema: TaskFormSchema,
     initialInput: {
       completed: false,
     },
@@ -30,63 +30,63 @@ function EditTodoPage() {
     revalidate: 'input',
   })
 
-  // Populate form when todo data loads
+  // Populate form when task data loads
   createEffect(() => {
-    const todo = todoQuery.data
-    if (todo) {
-      console.log('📋 Loading todo into form:', todo)
-      // Reset form with todo data
-      reset(todoForm, {
+    const task = taskQuery.data
+    if (task) {
+      console.log('📋 Loading task into form:', task)
+      // Reset form with task data
+      reset(taskForm, {
         initialInput: {
-          title: todo.title || '',
-          description: todo.description || '',
-          priority: todo.priority,
-          category: todo.category,
-          dueDate: todo.dueDate || '',
-          assignedTo: todo.assignedTo || '',
-          relatedPatient: todo.relatedPatient || '',
-          completed: todo.completed || false,
+          title: task.title || '',
+          description: task.description || '',
+          priority: task.priority,
+          category: task.category,
+          dueDate: task.dueDate || '',
+          assignedTo: task.assignedTo || '',
+          relatedPatient: task.relatedPatient || '',
+          completed: task.completed || false,
         }
       })
     }
   })
 
-  const handleSubmit: SubmitHandler<typeof TodoFormSchema> = async (values) => {
+  const handleSubmit: SubmitHandler<typeof TaskFormSchema> = async (values) => {
     try {
-      console.log('💾 Updating todo:', values)
-      await updateTodo.mutateAsync({ id: params().id, data: values })
-      toast.success('Todo updated successfully!')
-      navigate({ to: '/todos' })
+      console.log('💾 Updating task:', values)
+      await updateTask.mutateAsync({ id: params().id, data: values })
+      toast.success('Task updated successfully!')
+      navigate({ to: '/tasks' })
     } catch (error: any) {
-      console.error('❌ Error updating todo:', error)
-      toast.error(error.message || 'Failed to update todo')
+      console.error('❌ Error updating task:', error)
+      toast.error(error.message || 'Failed to update task')
     }
   }
 
   const handleDelete = async () => {
     try {
-      console.log('🗑️ Deleting todo:', params().id)
-      await deleteTodo.mutateAsync(params().id)
-      toast.success('Todo deleted successfully!')
-      navigate({ to: '/todos' })
+      console.log('🗑️ Deleting task:', params().id)
+      await deleteTask.mutateAsync(params().id)
+      toast.success('Task deleted successfully!')
+      navigate({ to: '/tasks' })
     } catch (error: any) {
-      console.error('❌ Error deleting todo:', error)
-      toast.error(error.message || 'Failed to delete todo')
+      console.error('❌ Error deleting task:', error)
+      toast.error(error.message || 'Failed to delete task')
     }
   }
 
   return (
     <div class="min-h-screen bg-[var(--color-bg-secondary)] py-8 px-4">
       <div class="max-w-3xl mx-auto">
-        <Show when={!todoQuery.isLoading} fallback={
+        <Show when={!taskQuery.isLoading} fallback={
           <div class="text-center py-12">
             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)]"></div>
-            <p class="mt-4 text-[var(--color-text-secondary)]">Loading todo...</p>
+            <p class="mt-4 text-[var(--color-text-secondary)]">Loading task...</p>
           </div>
         }>
           <div class="mb-8">
             <h1 class="text-3xl font-bold text-[var(--color-text-primary)] mb-2">
-              Edit Todo
+              Edit Task
             </h1>
             <p class="text-[var(--color-text-secondary)]">
               Update your task details
@@ -94,7 +94,7 @@ function EditTodoPage() {
           </div>
 
           <div class="bg-[var(--color-bg-primary)] rounded-xl shadow-sm border border-[var(--color-border-primary)] p-6 sm:p-8">
-            <Form of={todoForm} onSubmit={handleSubmit} class="space-y-8">
+            <Form of={taskForm} onSubmit={handleSubmit} class="space-y-8">
               <div class="space-y-6">
                 <div>
                   <h2 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
@@ -102,7 +102,7 @@ function EditTodoPage() {
                   </h2>
 
                   <div class="mb-5">
-                    <Field of={todoForm} path={['title']}>
+                    <Field of={taskForm} path={['title']}>
                       {(field) => (
                         <TextInput
                           {...field.props}
@@ -117,7 +117,7 @@ function EditTodoPage() {
                   </div>
 
                   <div class="mb-5">
-                    <Field of={todoForm} path={['description']}>
+                    <Field of={taskForm} path={['description']}>
                       {(field) => (
                         <Textarea
                           {...field.props}
@@ -132,7 +132,7 @@ function EditTodoPage() {
                   </div>
 
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field of={todoForm} path={['priority']}>
+                    <Field of={taskForm} path={['priority']}>
                       {(field) => (
                         <Select
                           {...field.props}
@@ -150,7 +150,7 @@ function EditTodoPage() {
                       )}
                     </Field>
 
-                    <Field of={todoForm} path={['category']}>
+                    <Field of={taskForm} path={['category']}>
                       {(field) => (
                         <Select
                           {...field.props}
@@ -172,7 +172,7 @@ function EditTodoPage() {
                   </div>
 
                   <div class="mt-5">
-                    <Field of={todoForm} path={['dueDate']}>
+                    <Field of={taskForm} path={['dueDate']}>
                       {(field) => (
                         <TextInput
                           {...field.props}
@@ -194,7 +194,7 @@ function EditTodoPage() {
                   </h2>
 
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field of={todoForm} path={['assignedTo']}>
+                    <Field of={taskForm} path={['assignedTo']}>
                       {(field) => (
                         <TextInput
                           {...field.props}
@@ -206,7 +206,7 @@ function EditTodoPage() {
                       )}
                     </Field>
 
-                    <Field of={todoForm} path={['relatedPatient']}>
+                    <Field of={taskForm} path={['relatedPatient']}>
                       {(field) => (
                         <TextInput
                           {...field.props}
@@ -226,7 +226,7 @@ function EditTodoPage() {
               </div>
 
               <div class="pt-6 border-t border-[var(--color-border-primary)]">
-                <Field of={todoForm} path={['completed']}>
+                <Field of={taskForm} path={['completed']}>
                   {(field) => (
                     <Checkbox
                       {...field.props}
@@ -242,8 +242,8 @@ function EditTodoPage() {
                   <Button
                     type="submit"
                     variant="primary"
-                    loading={todoForm.isSubmitting}
-                    disabled={todoForm.isSubmitting || !todoForm.isDirty}
+                    loading={taskForm.isSubmitting}
+                    disabled={taskForm.isSubmitting || !taskForm.isDirty}
                   >
                     Save Changes
                   </Button>
@@ -251,8 +251,8 @@ function EditTodoPage() {
                   <Button
                     type="button"
                     variant="secondary"
-                    onClick={() => navigate({ to: "/todos" })}
-                    disabled={todoForm.isSubmitting}
+                    onClick={() => navigate({ to: "/tasks" })}
+                    disabled={taskForm.isSubmitting}
                   >
                     Cancel
                   </Button>
@@ -262,14 +262,14 @@ function EditTodoPage() {
                   type="button"
                   variant="danger"
                   onClick={() => setShowDeleteDialog(true)}
-                  disabled={todoForm.isSubmitting || deleteTodo.isPending}
+                  disabled={taskForm.isSubmitting || deleteTask.isPending}
                 >
                   Delete
                 </Button>
               </div>
             </Form>
 
-            <Show when={todoQuery.data}>
+            <Show when={taskQuery.data}>
               <div class="mt-8 pt-8 border-t border-[var(--color-border-primary)]">
                 <h3 class="text-sm font-medium text-[var(--color-text-secondary)] mb-3">
                   Metadata
@@ -278,13 +278,13 @@ function EditTodoPage() {
                   <div>
                     <span class="text-[var(--color-text-secondary)]">Created:</span>
                     <span class="ml-2 text-[var(--color-text-primary)]">
-                      {new Date(todoQuery.data!.created).toLocaleString()}
+                      {new Date(taskQuery.data!.created).toLocaleString()}
                     </span>
                   </div>
                   <div>
                     <span class="text-[var(--color-text-secondary)]">Updated:</span>
                     <span class="ml-2 text-[var(--color-text-primary)]">
-                      {new Date(todoQuery.data!.updated).toLocaleString()}
+                      {new Date(taskQuery.data!.updated).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -298,8 +298,8 @@ function EditTodoPage() {
         isOpen={showDeleteDialog()}
         onClose={() => setShowDeleteDialog(false)}
         onConfirm={handleDelete}
-        title="Delete Todo"
-        message="Are you sure you want to delete this todo? This action cannot be undone."
+        title="Delete Task"
+        message="Are you sure you want to delete this task? This action cannot be undone."
         confirmText="Delete"
       />
     </div>

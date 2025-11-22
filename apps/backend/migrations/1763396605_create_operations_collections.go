@@ -9,7 +9,7 @@ import (
 func init() {
 	m.Register(func(app core.App) error {
 		// =============================================================================
-		// Operations Collections - Todos & Inventory
+		// Operations Collections - Tasks & Inventory
 		// =============================================================================
 
 		// Get dependencies
@@ -24,17 +24,17 @@ func init() {
 		}
 
 		// ---------------------------------------------------------------------------
-		// 1. todos - Task management
+		// 1. tasks - Task management
 		// ---------------------------------------------------------------------------
-		todos := core.NewBaseCollection("todos")
+		tasks := core.NewBaseCollection("tasks")
 
-		todos.ListRule = types.Pointer("@request.auth.id != ''")
-		todos.ViewRule = types.Pointer("@request.auth.id != ''")
-		todos.CreateRule = types.Pointer("@request.auth.id != ''")
-		todos.UpdateRule = types.Pointer("@request.auth.id != ''")
-		todos.DeleteRule = types.Pointer("@request.auth.id != ''")
+		tasks.ListRule = types.Pointer("@request.auth.id != ''")
+		tasks.ViewRule = types.Pointer("@request.auth.id != ''")
+		tasks.CreateRule = types.Pointer("@request.auth.id != ''")
+		tasks.UpdateRule = types.Pointer("@request.auth.id != ''")
+		tasks.DeleteRule = types.Pointer("@request.auth.id != ''")
 
-		todos.Fields.Add(
+		tasks.Fields.Add(
 			&core.TextField{
 				Name:     "title",
 				Required: true,
@@ -81,7 +81,7 @@ func init() {
 			},
 		)
 
-		if err := app.Save(todos); err != nil {
+		if err := app.Save(tasks); err != nil {
 			return err
 		}
 
@@ -181,7 +181,7 @@ func init() {
 		return app.Save(inventory)
 	}, func(app core.App) error {
 		// Rollback: delete collections in reverse order
-		collections := []string{"inventory", "todos"}
+		collections := []string{"inventory", "tasks"}
 		for _, name := range collections {
 			if err := app.Delete(core.NewBaseCollection(name)); err != nil {
 				return err

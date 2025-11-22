@@ -15,6 +15,7 @@ import {
   DashboardIcon,
   AppointmentsIcon,
   PatientsIcon,
+  TasksIcon,
   TreatmentsIcon,
   MedicalRecordsIcon,
   BillingIcon,
@@ -118,6 +119,11 @@ function AuthenticatedLayout() {
               href="/patients"
               icon={<PatientsIcon />}
               label="Patients"
+            />
+            <SidebarItem
+              href="/tasks"
+              icon={<TasksIcon />}
+              label="Tasks"
             />
             <SidebarItem
               href="/treatments"
