@@ -48,4 +48,4 @@ export * from './inventory'
 export * from './staff'
 
 // Task Management
-export * from './todos'
+export * from './tasks'

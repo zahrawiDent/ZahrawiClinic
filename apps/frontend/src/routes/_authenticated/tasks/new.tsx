@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/solid-router"
 import { useCreateRecord } from "@/lib/queries"
 import { toast } from "@/components/toast"
-
 import { createForm, Field, Form } from '@formisch/solid'
 import type { SubmitHandler } from '@formisch/solid'
 import { TextInput, Textarea, Select, Checkbox, Button } from "@/components/forms"
 import { TaskFormSchema } from "@/types/schemas"
+import { PRIORITY_OPTIONS, CATEGORY_OPTIONS } from "@/lib/constants/tasks"
 
 export const Route = createFileRoute('/_authenticated/tasks/new')({
   component: AddTaskPage,
@@ -28,6 +28,7 @@ function AddTaskPage() {
       completed: false,
       dueDate: getTomorrowDate(),
       priority: 'medium',
+      category: "administrative"
     },
     validate: 'blur',
     revalidate: 'input',
@@ -104,12 +105,7 @@ function AddTaskPage() {
                         value={field.input}
                         errors={field.errors ?? undefined}
                         placeholder="Select priority"
-                        options={[
-                          { value: 'low', label: '🟢 Low' },
-                          { value: 'medium', label: '🟡 Medium' },
-                          { value: 'high', label: '🟠 High' },
-                          { value: 'urgent', label: '🔴 Urgent' },
-                        ]}
+                        options={PRIORITY_OPTIONS}
                       />
                     )}
                   </Field>
@@ -122,14 +118,7 @@ function AddTaskPage() {
                         value={field.input}
                         errors={field.errors ?? undefined}
                         placeholder="Select category"
-                        options={[
-                          { value: 'administrative', label: '📋 Administrative' },
-                          { value: 'clinical', label: '🏥 Clinical' },
-                          { value: 'financial', label: '💰 Financial' },
-                          { value: 'operational', label: '⚙️ Operational' },
-                          { value: 'patient_care', label: '🏥 Patient Care' },
-                          { value: 'other', label: '📌 Other' },
-                        ]}
+                        options={CATEGORY_OPTIONS}
                       />
                     )}
                   </Field>

@@ -1,5 +1,5 @@
 /**
- * Todos Schema
+ * Tasks Schema
  * 
  * Task management for office and clinical tasks
  */

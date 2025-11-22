@@ -51,7 +51,6 @@ export function Select(props: SelectProps) {
       <div class="relative">
         <select
           id={props.id}
-          value={props.value}
           onChange={handleChange}
           required={props.required}
           disabled={props.disabled}
@@ -73,12 +72,12 @@ export function Select(props: SelectProps) {
           `}
         >
           {props.placeholder && (
-            <option value="" disabled>
+            <option value="" disabled selected={!props.value}>
               {props.placeholder}
             </option>
           )}
           {props.options.map((option) => (
-            <option value={option.value}>
+            <option value={option.value} selected={option.value === props.value}>
               {option.icon ? `${option.icon} ${option.label}` : option.label}
             </option>
           ))}

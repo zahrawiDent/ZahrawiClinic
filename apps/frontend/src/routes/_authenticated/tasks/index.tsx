@@ -578,24 +578,6 @@ function TasksPage() {
               </Show>
             </Suspense>
           </div>
-
-          {/* Footer Info */}
-          <div class="mt-6 p-4 bg-[var(--color-bg-elevated)] rounded-lg border border-[var(--color-border-primary)]">
-            <div class="flex items-start gap-3">
-              <div class="text-2xl">💡</div>
-              <div class="flex-1">
-                <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
-                  Tips for Better Task Management
-                </h3>
-                <ul class="text-sm text-[var(--color-text-secondary)] space-y-1">
-                  <li>• Use priority levels to focus on what matters most</li>
-                  <li>• Set due dates to keep track of deadlines</li>
-                  <li>• Categorize tasks for better organization</li>
-                  <li>• Mark tasks complete to track your progress</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </PageContainer>
       </PageLayout>
     </>

@@ -64,7 +64,8 @@
 
 import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/solid-query'
 import * as pb from './pocketbase'
-import type { CollectionRecords, BaseRecord } from '@/types/pocketbase-types'
+import type { CollectionRecords } from '@/types/pocketbase-types'
+import type { BaseRecord } from '@/types/schemas'
 
 // =============================================================================
 // TYPE UTILITIES - Reusable type helpers
@@ -297,7 +298,7 @@ export function useCollection<K extends CollectionName>(
 ) {
   return useQuery(() => ({
     queryKey: [collection, 'list', options],
-    queryFn: () => pb.getList<InferRecordType<K>>(collection, 1, 50, options),
+    queryFn: () => pb.getList<InferRecordType<K>>(collection as string, 1, 50, options),
     //                        ^^^^^^^^^^^^^^^^^^^
     //                        Magic! Automatically infers TodoRecord for "todos"
     staleTime: queryOptions?.staleTime ?? 1000 * 60 * 5, // 5 min default
@@ -349,7 +350,7 @@ export function useRecord<K extends CollectionName>(
 ) {
   return useQuery(() => ({
     queryKey: [collection, 'detail', id()],
-    queryFn: () => pb.getOne<InferRecordType<K>>(collection, id(), options),
+    queryFn: () => pb.getOne<InferRecordType<K>>(collection as string, id(), options),
     //                       ^^^^^^^^^^^^^^^^^^^
     //                       Automatically gets TodoRecord for "todos"
     enabled: !!id(),
@@ -415,13 +416,13 @@ export function useCreateRecord<K extends CollectionName>(collection: K) {
   //   ^? This is the magic! Combines inferred type with RecordWithId
 
   return useMutation(() => ({
-    mutationFn: (data: any) => pb.create<T>(collection, data),
+    mutationFn: (data: any) => pb.create<T>(collection as string, data),
     onMutate: async (data: any) => {
-      const context = await optimisticCreate<T>(queryClient, collection, data)
+      const context = await optimisticCreate<T>(queryClient, collection as string, data)
       return context
     },
     onError: (_err, _vars, context: any) => {
-      rollbackOptimisticUpdate(queryClient, collection, context)
+      rollbackOptimisticUpdate(queryClient, collection as string, context)
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [collection, 'list'] })
@@ -486,13 +487,13 @@ export function useUpdateRecord<K extends CollectionName>(collection: K) {
 
   return useMutation(() => ({
     mutationFn: ({ id, ...data }: { id: string;[key: string]: any }) =>
-      pb.update<T>(collection, id, data),
+      pb.update<T>(collection as string, id, data),
     onMutate: async ({ id, ...data }: { id: string;[key: string]: any }) => {
-      const context = await optimisticUpdate<T>(queryClient, collection, id, data as Partial<T>)
+      const context = await optimisticUpdate<T>(queryClient, collection as string, id, data as Partial<T>)
       return { ...context, id }
     },
     onError: (_err, _vars, context: any) => {
-      rollbackOptimisticUpdate(queryClient, collection, context)
+      rollbackOptimisticUpdate(queryClient, collection as string, context)
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [collection] })
@@ -549,9 +550,9 @@ export function useDeleteRecord<K extends CollectionName>(collection: K) {
   const queryClient = useQueryClient()
 
   return useMutation(() => ({
-    mutationFn: (id: string) => pb.deleteRecord(collection, id),
+    mutationFn: (id: string) => pb.deleteRecord(collection as string, id),
     onMutate: async (id: string) => {
-      const context = await optimisticDelete(queryClient, collection, id)
+      const context = await optimisticDelete(queryClient, collection as string, id)
       return context
     },
     onError: (_err, _vars, context: any) => {
@@ -628,7 +629,7 @@ export function useRealtimeCollection<K extends CollectionName>(
 
   onMount(() => {
     // Subscribe to all records in the collection
-    const unsubscribe = pb.pb.collection(collection).subscribe<T>('*', (e) => {
+    const unsubscribe = pb.pb.collection(collection as string).subscribe<T>('*', (e) => {
       // Cast to our typed event (PocketBase returns RecordSubscription which has action as string)
       const event = e as unknown as RealtimeEvent<T>
 
@@ -692,7 +693,7 @@ export function useRealtimeRecord<K extends CollectionName>(
     if (!recordId) return
 
     // Subscribe to specific record
-    const unsubscribe = pb.pb.collection(collection).subscribe<T>(recordId, (e) => {
+    const unsubscribe = pb.pb.collection(collection as string).subscribe<T>(recordId, (e) => {
       // Cast to our typed event (PocketBase returns RecordSubscription which has action as string)
       const event = e as unknown as RealtimeEvent<T>
 

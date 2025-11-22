@@ -22,7 +22,7 @@ type SelectProps = {
 
 export function Select(props: SelectProps) {
   const [local, selectProps] = splitProps(props, ['label', 'errors', 'placeholder', 'required', 'options', 'value'])
-  
+
   return (
     <div class="space-y-2">
       <Show when={local.label}>
@@ -40,7 +40,6 @@ export function Select(props: SelectProps) {
         <select
           {...selectProps}
           id={props.name}
-          value={local.value ?? ''}
           aria-invalid={!!local.errors?.[0]}
           aria-errormessage={`${props.name}-error`}
           class={`
@@ -58,13 +57,13 @@ export function Select(props: SelectProps) {
           `}
         >
           <Show when={local.placeholder}>
-            <option value="" disabled>
+            <option value="" disabled selected={!local.value}>
               {local.placeholder}
             </option>
           </Show>
           <For each={local.options}>
             {(option) => (
-              <option value={option.value} disabled={option.disabled}>
+              <option value={option.value} disabled={option.disabled} selected={option.value === local.value}>
                 {option.label}
               </option>
             )}
@@ -89,6 +88,6 @@ export function Select(props: SelectProps) {
           {local.errors?.[0]}
         </div>
       </Show>
-    </div>
+    </div >
   )
 }
