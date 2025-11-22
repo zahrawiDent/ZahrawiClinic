@@ -17,6 +17,7 @@ import { Route as DentalChartRouteImport } from './routes/dental-chart'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DocsIndexRouteImport } from './routes/docs/index'
 import { Route as AuthenticatedTreatmentsRouteImport } from './routes/_authenticated/treatments'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
@@ -71,6 +72,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/docs/',
+  path: '/docs/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTreatmentsRoute = AuthenticatedTreatmentsRouteImport.update({
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/treatments': typeof AuthenticatedTreatmentsRoute
+  '/docs': typeof DocsIndexRoute
   '/patients/$id': typeof AuthenticatedPatientsIdRouteWithChildren
   '/patients/new': typeof AuthenticatedPatientsNewRoute
   '/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/treatments': typeof AuthenticatedTreatmentsRoute
+  '/docs': typeof DocsIndexRoute
   '/patients/$id': typeof AuthenticatedPatientsIdRouteWithChildren
   '/patients/new': typeof AuthenticatedPatientsNewRoute
   '/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/treatments': typeof AuthenticatedTreatmentsRoute
+  '/docs/': typeof DocsIndexRoute
   '/_authenticated/patients/$id': typeof AuthenticatedPatientsIdRouteWithChildren
   '/_authenticated/patients/new': typeof AuthenticatedPatientsNewRoute
   '/_authenticated/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -255,6 +264,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/treatments'
+    | '/docs'
     | '/patients/$id'
     | '/patients/new'
     | '/tasks/$id'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/treatments'
+    | '/docs'
     | '/patients/$id'
     | '/patients/new'
     | '/tasks/$id'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/settings'
     | '/_authenticated/treatments'
+    | '/docs/'
     | '/_authenticated/patients/$id'
     | '/_authenticated/patients/new'
     | '/_authenticated/tasks/$id'
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   DentalChartV5Route: typeof DentalChartV5Route
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
+  DocsIndexRoute: typeof DocsIndexRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -384,6 +397,13 @@ declare module '@tanstack/solid-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/': {
+      id: '/docs/'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/treatments': {
@@ -562,6 +582,7 @@ const rootRouteChildren: RootRouteChildren = {
   DentalChartV5Route: DentalChartV5Route,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
+  DocsIndexRoute: DocsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
