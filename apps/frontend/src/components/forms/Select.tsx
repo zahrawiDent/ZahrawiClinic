@@ -13,6 +13,7 @@ type SelectProps = {
   value?: string
   errors?: string[]
   required?: boolean
+  disabled?: boolean
   options: SelectOption[]
   ref?: (element: HTMLSelectElement) => void
   onInput?: JSX.EventHandler<HTMLSelectElement, InputEvent>

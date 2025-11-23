@@ -33,20 +33,20 @@ function HomePage() {
                   <div class="text-xs text-[var(--color-text-secondary)]">Dental Management System</div>
                 </div>
               </div>
-              {/* <div class="flex items-center gap-3"> */}
-              {/*   <Link */}
-              {/*     to="/login" */}
-              {/*     class="px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] hover:text-[var(--color-brand-primary)] transition-colors" */}
-              {/*   > */}
-              {/*     Sign In */}
-              {/*   </Link> */}
-              {/*   <Link */}
-              {/*     to="/docs" */}
-              {/*     class="px-5 py-2 text-sm font-semibold bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] text-white rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105" */}
-              {/*   > */}
-              {/*     Get Started */}
-              {/*   </Link> */}
-              {/* </div> */}
+              <div class="flex items-center gap-3">
+                <Link
+                  to="/login"
+                  class="px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] hover:text-[var(--color-brand-primary)] transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/docs"
+                  class="px-5 py-2 text-sm font-semibold bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] text-white rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                >
+                  Get Started
+                </Link>
+              </div>
             </div>
           </div>
         </nav>

@@ -15,6 +15,7 @@ export const UsersDataSchema = v.object({
   emailVisibility: v.optional(v.boolean()),
   name: v.optional(v.string()),
   avatar: v.optional(v.string()),
+  role: v.picklist(['Dentist', "Receptionist"]),
   // Add your custom fields here
 })
 
