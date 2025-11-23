@@ -10,7 +10,8 @@ import { BaseRecordSchema } from './base'
 // Data fields (without base record fields)
 export const TaskDataSchema = v.object({
   title: v.pipe(v.string(), v.nonEmpty("Title is required")),
-  description: v.optional(v.string()),
+  // description: v.optional(v.string()),
+  description: v.pipe(v.string(), v.nonEmpty("Description is required")),
   completed: v.boolean(),
   priority: v.optional(v.picklist(['low', 'medium', 'high', 'urgent'])),
   dueDate: v.optional(v.string()),

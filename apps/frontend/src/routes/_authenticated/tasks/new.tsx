@@ -30,8 +30,6 @@ function AddTaskPage() {
       priority: 'medium',
       category: "administrative"
     },
-    validate: 'blur',
-    revalidate: 'input',
   })
 
   const handleSubmit: SubmitHandler<typeof TaskFormSchema> = async (values) => {
