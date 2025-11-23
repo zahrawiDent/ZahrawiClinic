@@ -6,18 +6,13 @@ import { TextInput, Select, Button, FormCard } from "@/components/forms"
 import { UsersFormSchema } from "@/types/schemas/users"
 import { useAuth } from "@/lib/auth-context"
 import { Show } from "solid-js"
-import { pb } from "@/lib/pocketbase"
-import { isSuperuser } from "@/lib/route-guards"
+import { isSuperuser, getCurrentUserCollection } from "@/lib/auth-helpers"
+import { ROLE_OPTIONS } from "@/lib/constants/roles"
 import * as v from 'valibot'
 
 export const Route = createFileRoute('/_authenticated/profile/edit')({
   component: EditProfilePage,
 })
-
-const ROLE_OPTIONS = [
-  { value: 'Dentist', label: 'Dentist' },
-  { value: 'Receptionist', label: 'Receptionist' },
-]
 
 // Superuser schema (only email, no role)
 const SuperuserFormSchema = v.object({
@@ -57,8 +52,9 @@ function EditProfilePage() {
 
       console.log('📝 Updating profile:', values)
       
-      // Update the appropriate collection
-      const collection = isSuper ? '_superusers' : 'users'
+      // Update the appropriate collection using helper
+      const collection = getCurrentUserCollection()
+      const { pb } = await import('@/lib/pocketbase')
       await pb.collection(collection).update(currentUser.id, values)
       
       toast.success('Profile updated successfully!')

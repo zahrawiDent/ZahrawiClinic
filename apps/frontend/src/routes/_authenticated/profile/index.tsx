@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/solid-router"
 import { useAuth } from "@/lib/auth-context"
 import { Show } from "solid-js"
 import { Button, FormCard } from "@/components/forms"
-import { isSuperuser } from "@/lib/route-guards"
+import { isSuperuser } from "@/lib/auth-helpers"
 
 export const Route = createFileRoute('/_authenticated/profile/')({
   component: ProfilePage,

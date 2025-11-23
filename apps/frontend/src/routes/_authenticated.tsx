@@ -4,7 +4,7 @@ import { getUserAvatarUrl } from "@/lib/pocketbase"
 import { toast } from "@/components/toast"
 import { DarkModeToggle } from "@/components/dark-mode-toggle"
 import { Show } from "solid-js"
-import { isSuperuser } from "@/lib/route-guards"
+import { isSuperuser, getCurrentRole } from "@/lib/auth-helpers"
 import {
   Sidebar,
   SidebarHeader,
@@ -175,7 +175,7 @@ function AuthenticatedLayout() {
           <SidebarUser
             name={auth.user()?.name || auth.user()?.email || "User"}
             email={auth.user()?.email || ""}
-            role={auth.isAdmin() ? "Administrator" : "Staff"}
+            role={isSuperuser() ? "Administrator" : (getCurrentRole() || "Staff")}
             avatar={getUserAvatarUrl(auth.user())}
             menuItems={userMenuItems}
           />

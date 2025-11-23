@@ -20,6 +20,11 @@ func init() {
 	}, func(app core.App) error {
 		// add down queries...
 
-		return nil
-	})
+ record, _ := app.FindAuthRecordByEmail(core.CollectionNameSuperusers, "admin@zahrawiclinic.com")
+        if record == nil {
+            return nil // probably already deleted
+        }
+
+        return app.Delete(record)
+		})
 }

@@ -1,5 +1,11 @@
+/**
+ * Route Guards
+ * Authorization checks for route protection
+ */
+
 import { redirect } from "@tanstack/solid-router"
 import type { RouterContext } from "@/index"
+import { isSuperuser } from "./auth-helpers"
 import { pb } from "./pocketbase"
 
 /**
@@ -22,9 +28,7 @@ export const requireGuest = (context: RouterContext) => {
  * Throws an error if user is not a superuser
  */
 export const requireSuperuser = () => {
-  const authModel = pb.authStore.record
-
-  if (!authModel?.collectionName || authModel.collectionName !== '_superusers') {
+  if (!isSuperuser()) {
     throw new Error('Unauthorized: Superuser access required')
   }
 }
@@ -59,50 +63,17 @@ export const requireRole = (allowedRoles: string | string[]) => {
  * beforeLoad: () => requireSuperuserOrRole(['Dentist', 'Receptionist'])
  */
 export const requireSuperuserOrRole = (allowedRoles: string | string[]) => {
-  const authModel = pb.authStore.record as any
-
   // Allow superusers
-  if (authModel?.collectionName === '_superusers') {
+  if (isSuperuser()) {
     return
   }
 
-  // Check role
+  // Check role for regular users
   const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]
+  const authModel = pb.authStore.record as any
 
   if (!authModel?.role || !roles.includes(authModel.role)) {
     throw new Error(`Unauthorized: Requires superuser or one of: ${roles.join(', ')}`)
   }
 }
 
-/**
- * Check if current user is a superuser
- */
-export const isSuperuser = (): boolean => {
-  const authModel = pb.authStore.record
-  return authModel?.collectionName === '_superusers'
-}
-
-/**
- * Check if current user has a specific role
- */
-export const hasRole = (role: string): boolean => {
-  const authModel = pb.authStore.record as any
-  return authModel?.role === role
-}
-
-/**
- * Get current user's role
- */
-export const getCurrentRole = (): string | null => {
-  const authModel = pb.authStore.record as any
-  return authModel?.role || null
-}
-
-/**
- * Get current user's collection name
- * Useful for determining which collection to update
- */
-export const getCurrentUserCollection = (): string => {
-  const authModel = pb.authStore.model as any
-  return authModel?.collectionName || 'users'
-}

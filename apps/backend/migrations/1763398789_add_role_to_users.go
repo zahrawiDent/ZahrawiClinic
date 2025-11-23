@@ -23,14 +23,14 @@ func init() {
 
 		// Set access rules
 		// Only superusers can create and delete users
-		users.CreateRule = types.Pointer("@request.auth.id != '' && @request.auth.collectionName = 'superusers'")
-		users.DeleteRule = types.Pointer("@request.auth.id != '' && @request.auth.collectionName = 'superusers'")
+		users.CreateRule = types.Pointer("@request.auth.id != '' && @request.auth.collectionName = '_superusers'")
+		users.DeleteRule = types.Pointer("@request.auth.id != '' && @request.auth.collectionName = '_superusers'")
 		// Users can update their own account, superusers can update any user
-		users.UpdateRule = types.Pointer("@request.auth.id != '' && (@request.auth.id = id || @request.auth.collectionName = 'superusers')")
+		users.UpdateRule = types.Pointer("@request.auth.id != '' && (@request.auth.id = id || @request.auth.collectionName = '_superusers')")
 		// Users can view their own account, superusers can view all
-		users.ViewRule = types.Pointer("@request.auth.id != '' && (@request.auth.id = id || @request.auth.collectionName = 'superusers')")
+		users.ViewRule = types.Pointer("@request.auth.id != '' && (@request.auth.id = id || @request.auth.collectionName = '_superusers')")
 		// Users can list themselves, superusers can list all
-		users.ListRule = types.Pointer("@request.auth.id != '' && (@request.auth.id = id || @request.auth.collectionName = 'superusers')")
+		users.ListRule = types.Pointer("@request.auth.id != '' && (@request.auth.id = id || @request.auth.collectionName = '_superusers')")
 
 		// Add custom fields (username, role, timestamps)
 		users.Fields.Add(

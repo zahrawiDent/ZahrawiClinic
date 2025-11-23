@@ -6,17 +6,13 @@ import type { SubmitHandler } from '@formisch/solid'
 import { TextInput, Select, Button, FormCard } from "@/components/forms"
 import { UsersFormSchema } from "@/types/schemas/users"
 import { requireSuperuser } from "@/lib/route-guards"
+import { ROLE_OPTIONS } from "@/lib/constants/roles"
 import { Show } from "solid-js"
 
 export const Route = createFileRoute('/_authenticated/users/new')({
   component: AddUserPage,
   beforeLoad: requireSuperuser,
 })
-
-const ROLE_OPTIONS = [
-  { value: 'Dentist', label: 'Dentist' },
-  { value: 'Receptionist', label: 'Receptionist' },
-]
 
 function AddUserPage() {
   const navigate = useNavigate()
