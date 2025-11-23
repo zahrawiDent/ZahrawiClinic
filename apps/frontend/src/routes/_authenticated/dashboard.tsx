@@ -10,30 +10,30 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function DashboardPage() {
   const auth = useAuth()
-  
+
   // Fetch data with realtime sync
   const patients = useCollection("patients", { sort: "-created" })
   const appointments = useCollection("appointments", { sort: "-start_time" })
   const todos = useCollection("todos", { sort: "-created", filter: "completed = false" })
-  
+
   // Enable realtime updates
   useRealtimeCollection("patients")
   useRealtimeCollection("appointments")
   useRealtimeCollection("todos")
-  
+
   // Calculate stats
   const stats = createMemo(() => {
     const totalPatients = patients.data?.totalItems ?? 0
     const totalAppointments = appointments.data?.items?.length ?? 0
     const pendingTodos = todos.data?.items?.filter((t: any) => !t.completed).length ?? 0
-    
+
     // Count today's appointments
     const today = new Date().toISOString().split('T')[0]
     const todayAppointments = appointments.data?.items?.filter((apt: any) => {
       const aptDate = new Date(apt.start_time).toISOString().split('T')[0]
       return aptDate === today
     }).length ?? 0
-    
+
     return {
       totalPatients,
       totalAppointments,
@@ -41,10 +41,10 @@ function DashboardPage() {
       pendingTodos,
     }
   })
-  
+
   // Get recent patients (last 5)
   const recentPatients = createMemo(() => patients.data?.items?.slice(0, 5) ?? [])
-  
+
   // Get upcoming appointments (next 5)
   const upcomingAppointments = createMemo(() => {
     const now = new Date()
@@ -52,17 +52,17 @@ function DashboardPage() {
       ?.filter((apt: any) => new Date(apt.start_time) > now)
       ?.slice(0, 5) ?? []
   })
-  
+
   // Get urgent todos (high/urgent priority, not completed)
   const urgentTodos = createMemo(() => {
     return todos.data?.items
-      ?.filter((todo: any) => 
-        !todo.completed && 
+      ?.filter((todo: any) =>
+        !todo.completed &&
         (todo.priority === 'high' || todo.priority === 'urgent')
       )
       ?.slice(0, 5) ?? []
   })
-  
+
   return (
     <PageLayout>
       <PageContainer size="xl">
@@ -92,33 +92,33 @@ function DashboardPage() {
           {/* Stats Grid */}
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Suspense fallback={<StatsCard value="—" label="Total Patients" />}>
-              <StatsCard 
-                value={stats().totalPatients} 
-                label="Total Patients" 
+              <StatsCard
+                value={stats().totalPatients}
+                label="Total Patients"
                 color="blue"
               />
             </Suspense>
 
             <Suspense fallback={<StatsCard value="—" label="Today's Appointments" />}>
-              <StatsCard 
-                value={stats().todayAppointments} 
-                label="Today's Appointments" 
+              <StatsCard
+                value={stats().todayAppointments}
+                label="Today's Appointments"
                 color="green"
               />
             </Suspense>
 
             <Suspense fallback={<StatsCard value="—" label="All Appointments" />}>
-              <StatsCard 
-                value={stats().totalAppointments} 
-                label="All Appointments" 
+              <StatsCard
+                value={stats().totalAppointments}
+                label="All Appointments"
                 color="purple"
               />
             </Suspense>
 
             <Suspense fallback={<StatsCard value="—" label="Pending Tasks" />}>
-              <StatsCard 
-                value={stats().pendingTodos} 
-                label="Pending Tasks" 
+              <StatsCard
+                value={stats().pendingTodos}
+                label="Pending Tasks"
                 color="orange"
               />
             </Suspense>
@@ -133,7 +133,7 @@ function DashboardPage() {
               Quick Actions
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link 
+              <Link
                 to="/patients/new"
                 class="group relative overflow-hidden p-5 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-700 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
@@ -150,7 +150,7 @@ function DashboardPage() {
                 </div>
               </Link>
 
-              <Link 
+              <Link
                 to="/appointments"
                 class="group relative overflow-hidden p-5 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-700 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
@@ -167,7 +167,7 @@ function DashboardPage() {
                 </div>
               </Link>
 
-              <Link 
+              <Link
                 to="/patients"
                 class="group relative overflow-hidden p-5 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-700 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
@@ -184,8 +184,8 @@ function DashboardPage() {
                 </div>
               </Link>
 
-              <Link 
-                to="/todos/new"
+              <Link
+                to="/tasks/new"
                 class="group relative overflow-hidden p-5 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200 dark:border-orange-700 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
                 <div class="flex items-start gap-3">
@@ -214,8 +214,8 @@ function DashboardPage() {
                   </svg>
                   Recent Patients
                 </h2>
-                <Link 
-                  to="/patients" 
+                <Link
+                  to="/patients"
                   class="text-sm text-[var(--color-brand-primary)] hover:underline font-medium"
                 >
                   View all →
@@ -226,7 +226,7 @@ function DashboardPage() {
                   Loading patients...
                 </div>
               }>
-                <Show 
+                <Show
                   when={recentPatients().length > 0}
                   fallback={
                     <div class="text-center py-8">
@@ -236,8 +236,8 @@ function DashboardPage() {
                         </svg>
                       </div>
                       <p class="text-sm text-[var(--color-text-secondary)] mb-3">No patients yet</p>
-                      <Link 
-                        to="/patients/new" 
+                      <Link
+                        to="/patients/new"
                         class="inline-block text-sm text-[var(--color-brand-primary)] hover:underline font-medium"
                       >
                         Add your first patient
@@ -259,7 +259,7 @@ function DashboardPage() {
                             </div>
                             <div class="flex-1 min-w-0">
                               <div class="font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-primary)] transition-colors truncate">
-                                {patient.firstName && patient.lastName 
+                                {patient.firstName && patient.lastName
                                   ? `${patient.firstName} ${patient.lastName}`
                                   : patient.name || 'Unknown Patient'}
                               </div>
@@ -288,8 +288,8 @@ function DashboardPage() {
                   </svg>
                   Upcoming
                 </h2>
-                <Link 
-                  to="/appointments" 
+                <Link
+                  to="/appointments"
                   class="text-sm text-[var(--color-brand-primary)] hover:underline font-medium"
                 >
                   View all →
@@ -300,7 +300,7 @@ function DashboardPage() {
                   Loading appointments...
                 </div>
               }>
-                <Show 
+                <Show
                   when={upcomingAppointments().length > 0}
                   fallback={
                     <div class="text-center py-8">
@@ -310,8 +310,8 @@ function DashboardPage() {
                         </svg>
                       </div>
                       <p class="text-sm text-[var(--color-text-secondary)] mb-3">No upcoming appointments</p>
-                      <Link 
-                        to="/appointments" 
+                      <Link
+                        to="/appointments"
                         class="inline-block text-sm text-[var(--color-brand-primary)] hover:underline font-medium"
                       >
                         Schedule an appointment
@@ -326,9 +326,9 @@ function DashboardPage() {
                           <div class="flex items-start justify-between mb-2">
                             <div class="flex-1">
                               <div class="font-medium text-[var(--color-text-primary)] text-sm">
-                                {new Date(appointment.start_time).toLocaleTimeString([], { 
-                                  hour: '2-digit', 
-                                  minute: '2-digit' 
+                                {new Date(appointment.start_time).toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
                                 })}
                               </div>
                               <div class="text-xs text-[var(--color-text-secondary)]">
@@ -359,8 +359,8 @@ function DashboardPage() {
                   </svg>
                   Urgent Tasks
                 </h2>
-                <Link 
-                  to="/todos" 
+                <Link
+                  to="/tasks"
                   class="text-sm text-[var(--color-brand-primary)] hover:underline font-medium"
                 >
                   View all →
@@ -371,7 +371,7 @@ function DashboardPage() {
                   Loading tasks...
                 </div>
               }>
-                <Show 
+                <Show
                   when={urgentTodos().length > 0}
                   fallback={
                     <div class="text-center py-8">
@@ -389,26 +389,24 @@ function DashboardPage() {
                     <For each={urgentTodos()}>
                       {(todo: any) => (
                         <Link
-                          to="/todos/$id"
+                          to="/tasks/$id"
                           params={{ id: todo.id }}
                           class="block p-3 bg-[var(--color-bg-tertiary)] border border-[var(--color-border-primary)] rounded-lg hover:border-orange-500 hover:shadow-md transition-all group"
                         >
                           <div class="flex items-start gap-3">
                             <div class="mt-0.5">
-                              <div class={`w-2 h-2 rounded-full ${
-                                todo.priority === 'urgent' ? 'bg-red-500' : 'bg-orange-500'
-                              }`} />
+                              <div class={`w-2 h-2 rounded-full ${todo.priority === 'urgent' ? 'bg-red-500' : 'bg-orange-500'
+                                }`} />
                             </div>
                             <div class="flex-1 min-w-0">
                               <div class="font-medium text-[var(--color-text-primary)] group-hover:text-orange-500 transition-colors truncate text-sm">
                                 {todo.title}
                               </div>
                               <div class="flex items-center gap-2 mt-1">
-                                <span class={`px-2 py-0.5 text-xs font-medium rounded ${
-                                  todo.priority === 'urgent' 
+                                <span class={`px-2 py-0.5 text-xs font-medium rounded ${todo.priority === 'urgent'
                                     ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                                     : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
-                                }`}>
+                                  }`}>
                                   {todo.priority}
                                 </span>
                                 <Show when={todo.dueDate}>

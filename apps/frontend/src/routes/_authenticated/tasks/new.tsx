@@ -25,6 +25,7 @@ function AddTaskPage() {
   const taskForm = createForm({
     schema: TaskFormSchema,
     initialInput: {
+      title: '',
       completed: false,
       dueDate: getTomorrowDate(),
       priority: 'medium',

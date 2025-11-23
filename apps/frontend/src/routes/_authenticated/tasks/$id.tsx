@@ -3,7 +3,7 @@ import { useRecord, useUpdateRecord, useDeleteRecord } from "@/lib/queries"
 import { toast } from "@/components/toast"
 import { createForm, Field, Form, reset } from '@formisch/solid'
 import type { SubmitHandler } from '@formisch/solid'
-import { TextInput, Textarea, Select, Checkbox, Button } from "@/components/forms"
+import { TextInput, Textarea, Select, Checkbox, Button, FormCard } from "@/components/forms"
 import { TaskFormSchema } from "@/types/schemas"
 import { createEffect, createSignal, Show } from "solid-js"
 import { ConfirmationDialog } from "@/components/confirmation-dialog"
@@ -92,7 +92,7 @@ function EditTaskPage() {
           </div>
 
           {/* Form */}
-          <div class="bg-[var(--color-bg-primary)] rounded-xl shadow-sm border border-[var(--color-border-primary)] p-6 sm:p-8">
+          <FormCard>
             <Form of={taskForm} onSubmit={handleSubmit} class="space-y-8">
               {/* Task Details */}
               <div>
@@ -264,7 +264,7 @@ function EditTaskPage() {
                 </div>
               </div>
             </Show>
-          </div>
+          </FormCard>
         </Show>
       </div>
 
@@ -276,6 +276,7 @@ function EditTaskPage() {
         title="Delete Task"
         message="Are you sure you want to delete this task? This action cannot be undone."
         confirmText="Delete"
+        isDangerous={true}
       />
     </div>
   )
