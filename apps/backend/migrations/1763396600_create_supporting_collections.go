@@ -79,13 +79,14 @@ func init() {
 				Max:  100,
 			},
 
-			&core.DateField{
-				Name:   "created",
-				System: true,
+			&core.AutodateField{
+				Name:     "created",
+				OnCreate: true,
 			},
-			&core.DateField{
-				Name:   "updated",
-				System: true,
+			&core.AutodateField{
+				Name:     "updated",
+				OnCreate: true,
+				OnUpdate: true,
 			},
 		)
 
@@ -152,13 +153,14 @@ func init() {
 				Max:  1000,
 			},
 
-			&core.DateField{
-				Name:   "created",
-				System: true,
+			&core.AutodateField{
+				Name:     "created",
+				OnCreate: true,
 			},
-			&core.DateField{
-				Name:   "updated",
-				System: true,
+			&core.AutodateField{
+				Name:     "updated",
+				OnCreate: true,
+				OnUpdate: true,
 			},
 		)
 
