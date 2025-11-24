@@ -14,6 +14,9 @@ importers:
       '@tanstack/solid-table':
         specifier: ^8.21.3
         version: 8.21.3(solid-js@1.9.10)
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       valibot:
         specifier: ^1.1.0
         version: 1.1.0
@@ -74,6 +77,9 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -212,6 +218,8 @@ snapshots:
       yargs: 17.7.2
 
   csstype@3.2.3: {}
+
+  date-fns@4.1.0: {}
 
   emoji-regex@8.0.0: {}
 
