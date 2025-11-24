@@ -15,12 +15,12 @@ export default function HoverIndicator(props: { mins: number; pxPerMin: number; 
   return (
     <>
       <div
-        class="absolute left-0 right-0 h-px bg-blue-500/30 z-10 pointer-events-none"
-        style={{ top: `${topPx()}px` }}
+        class="absolute left-0 right-0 h-px z-10 pointer-events-none"
+        style={{ top: `${topPx()}px`, backgroundColor: 'var(--color-info)', opacity: '0.3' }}
       />
       <div
-        class="absolute left-1 -translate-y-1/2 z-10 pointer-events-none text-[10px] px-1.5 py-0.5 rounded border bg-white/80 backdrop-blur-sm text-gray-700 border-gray-200 shadow-sm"
-        style={{ top: `${topPx()}px` }}
+        class="absolute left-1 -translate-y-1/2 z-10 pointer-events-none text-[10px] px-1.5 py-0.5 rounded border shadow-sm"
+        style={{ top: `${topPx()}px`, backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-secondary)', borderColor: 'var(--color-border-primary)' }}
       >
         {props.label}
       </div>

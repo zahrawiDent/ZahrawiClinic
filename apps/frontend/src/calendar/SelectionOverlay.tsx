@@ -29,18 +29,18 @@ export default function SelectionOverlay(props: SelectionOverlayProps) {
   return (
     <div class="absolute inset-x-0 z-30 pointer-events-none">
       <div
-        class="absolute left-0 right-0 bg-blue-200/30 border border-blue-300 rounded-sm"
-        style={{ top: `${top}px`, height: `${height}px` }}
+        class="absolute left-0 right-0 border rounded-sm"
+        style={{ top: `${top}px`, height: `${height}px`, 'background-color': 'var(--color-info-bg)', opacity: '0.3', 'border-color': 'var(--color-info-border)' }}
       />
       <div
-        class="absolute left-2 -translate-y-1/2 text-[10px] text-blue-700 bg-white/80 px-1.5 py-0.5 rounded border border-blue-200 shadow-sm"
-        style={{ top: `${top}px` }}
+        class="absolute left-2 -translate-y-1/2 text-[10px] px-1.5 py-0.5 rounded border shadow-sm"
+        style={{ top: `${top}px`, color: 'var(--color-info-text)', 'background-color': 'var(--color-bg-primary)', 'border-color': 'var(--color-info-border)' }}
       >
         {props.labelFor(start)}
       </div>
       <div
-        class="absolute left-2 -translate-y-1/2 text-[10px] text-blue-700 bg-white/80 px-1.5 py-0.5 rounded border border-blue-200 shadow-sm"
-        style={{ top: `${top + height}px` }}
+        class="absolute left-2 -translate-y-1/2 text-[10px] px-1.5 py-0.5 rounded border shadow-sm"
+        style={{ top: `${top + height}px`, color: 'var(--color-info-text)', 'background-color': 'var(--color-bg-primary)', 'border-color': 'var(--color-info-border)' }}
       >
         {props.labelFor(end)}
       </div>

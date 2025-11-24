@@ -89,7 +89,9 @@ export default function DayView(props: DayViewProps) {
 
   // Shared preview state (visual-only) and auto-scroll
   const { preview, setStart: setPreviewStart, setEnd: setPreviewEnd, clearStart: clearPreviewStart, clearEnd: clearPreviewEnd } = createPreviewState(snap, SNAP_MIN)
-  const { start: startAuto, stop: stopAuto } = createAutoScroll()
+  // Pass a getter to the autoScroll util so it can discover and scroll the appropriate
+  // scrollable ancestor (e.g., the main `overflow-auto` container) instead of the window.
+  const { start: startAuto, stop: stopAuto } = createAutoScroll(() => rightPaneRef)
   // Track active drag baseId and edge navigation
   const [dragging, setDragging] = createSignal<string | null>(null)
   let edgeTimer: number | null = null

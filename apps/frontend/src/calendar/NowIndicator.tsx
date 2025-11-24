@@ -43,12 +43,12 @@ export default function NowIndicator(props: { date: Date; pxPerMin: number; dotL
   return (
     <>
       <div
-        class="absolute left-0 right-0 h-px bg-red-500 z-30 pointer-events-none"
-        style={{ top: `${topPx()}px` }}
+        class="absolute left-0 right-0 h-px z-30 pointer-events-none"
+        style={{ top: `${topPx()}px`, 'background-color': 'var(--color-error)' }}
       />
       <div
-        class="absolute w-2 h-2 bg-red-500 rounded-full -translate-y-1/2 z-30 pointer-events-none"
-        style={{ top: `${topPx()}px`, left: dotLeft() }}
+        class="absolute w-2 h-2 rounded-full -translate-y-1/2 z-30 pointer-events-none"
+        style={{ top: `${topPx()}px`, left: dotLeft(), 'background-color': 'var(--color-error)' }}
       />
     </>
   )

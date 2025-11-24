@@ -114,23 +114,23 @@ export default function TimeGrid(props: TimeGridProps) {
   const hours = () => hoursFrom(startHour())
   return (
     // Two-column grid: [labels | content]
-    <div class={`grid gap-px bg-gray-50`} style={{ 'grid-template-columns': "60px 1fr" }}>
+    <div class={`grid gap-px bg-[var(--color-bg-tertiary)]`} style={{ 'grid-template-columns': "60px 1fr" }}>
       {/* Header row: empty cell left, formatted date on the right (highlight if today) */}
-      <div class="bg-white border-b border-gray-200"></div>
-      <div class={`p-3 text-center text-sm font-medium border-b border-gray-200 ${isToday(props.anchor) ? 'bg-blue-50 text-blue-700' : 'bg-white text-gray-500'}`}>
+      <div class="bg-[var(--color-bg-primary)] border-b border-[var(--color-border-primary)]"></div>
+      <div class={`p-3 text-center text-sm font-medium border-b border-[var(--color-border-primary)] ${isToday(props.anchor) ? 'bg-[var(--color-info-bg)] text-[var(--color-info-text)]' : 'bg-[var(--color-bg-primary)] text-[var(--color-text-tertiary)]'}`}>
         <span>{format(props.anchor, 'PPPP')}</span>
         <Show when={isToday(props.anchor)}>
-          <span class="ml-2 inline-flex items-center rounded-full bg-blue-100 text-blue-700 text-xs px-2 py-0.5 align-middle">Today</span>
+          <span class="ml-2 inline-flex items-center rounded-full text-xs px-2 py-0.5 align-middle" style={{ backgroundColor: 'var(--color-info-bg)', color: 'var(--color-info-text)' }}>Today</span>
         </Show>
       </div>
       {/* Left labels column: 24 rows, one per hour */}
-      <div class="bg-white border-r border-gray-200" style={{ height: `${ROW_H * 24}px` }}>
+      <div class="bg-[var(--color-bg-primary)] border-r border-[var(--color-border-primary)]" style={{ height: `${ROW_H * 24}px` }}>
         {hours().map((h) => (
-          <div class="h-16 flex items-start justify-end pr-2 text-xs text-gray-500">{format(addHours(startOfDay(props.anchor), h), 'ha')}</div>
+          <div class="h-16 flex items-start justify-end pr-2 text-xs text-[var(--color-text-tertiary)]">{format(addHours(startOfDay(props.anchor), h), 'ha')}</div>
         ))}
       </div>
       <div
-        class="relative bg-white border-b border-gray-200"
+        class="relative bg-[var(--color-bg-primary)] border-b border-[var(--color-border-primary)]"
         style={{ height: `${ROW_H * 24}px` }}
         ref={props.setRightPaneRef}
         onMouseMove={(ev) => {
@@ -150,12 +150,12 @@ export default function TimeGrid(props: TimeGridProps) {
       >
         {/* Today background tint for the right pane */}
         <Show when={isToday(props.anchor)}>
-          <div class="absolute inset-0 bg-blue-50/40 pointer-events-none" />
+          <div class="absolute inset-0 pointer-events-none" style={{ backgroundColor: 'var(--color-info-bg)', opacity: '0.4' }} />
         </Show>
         {/* Hour dividers (skip the very first line at 0:00) */}
         {HOURS.map((h) => (
           h > 0 ? (
-            <div class="absolute left-0 right-0 border-b border-gray-200" style={{ top: `${h * ROW_H}px`, 'pointer-events': 'none' }} />
+            <div class="absolute left-0 right-0 border-b border-[var(--color-border-primary)]" style={{ top: `${h * ROW_H}px`, 'pointer-events': 'none' }} />
           ) : null
         ))}
         {/* "Now" indicator (today only) using shared component */}
