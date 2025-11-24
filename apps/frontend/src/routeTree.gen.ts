@@ -9,11 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DentalChartV5RouteImport } from './routes/dental-chart-v5'
-import { Route as DentalChartV4RouteImport } from './routes/dental-chart-v4'
-import { Route as DentalChartV2RouteImport } from './routes/dental-chart-v2'
-import { Route as DentalChartEnhancedRouteImport } from './routes/dental-chart-enhanced'
-import { Route as DentalChartRouteImport } from './routes/dental-chart'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -40,31 +35,6 @@ import { Route as AuthenticatedPatientsIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedUsersIdEditRouteImport } from './routes/_authenticated/users/$id.edit'
 import { Route as AuthenticatedPatientsIdEditRouteImport } from './routes/_authenticated/patients/$id.edit'
 
-const DentalChartV5Route = DentalChartV5RouteImport.update({
-  id: '/dental-chart-v5',
-  path: '/dental-chart-v5',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DentalChartV4Route = DentalChartV4RouteImport.update({
-  id: '/dental-chart-v4',
-  path: '/dental-chart-v4',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DentalChartV2Route = DentalChartV2RouteImport.update({
-  id: '/dental-chart-v2',
-  path: '/dental-chart-v2',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DentalChartEnhancedRoute = DentalChartEnhancedRouteImport.update({
-  id: '/dental-chart-enhanced',
-  path: '/dental-chart-enhanced',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DentalChartRoute = DentalChartRouteImport.update({
-  id: '/dental-chart',
-  path: '/dental-chart',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -201,11 +171,6 @@ const AuthenticatedPatientsIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/dental-chart': typeof DentalChartRoute
-  '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
-  '/dental-chart-v2': typeof DentalChartV2Route
-  '/dental-chart-v4': typeof DentalChartV4Route
-  '/dental-chart-v5': typeof DentalChartV5Route
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/appointments': typeof AuthenticatedAppointmentsRoute
@@ -232,11 +197,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/dental-chart': typeof DentalChartRoute
-  '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
-  '/dental-chart-v2': typeof DentalChartV2Route
-  '/dental-chart-v4': typeof DentalChartV4Route
-  '/dental-chart-v5': typeof DentalChartV5Route
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/appointments': typeof AuthenticatedAppointmentsRoute
@@ -265,11 +225,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
-  '/dental-chart': typeof DentalChartRoute
-  '/dental-chart-enhanced': typeof DentalChartEnhancedRoute
-  '/dental-chart-v2': typeof DentalChartV2Route
-  '/dental-chart-v4': typeof DentalChartV4Route
-  '/dental-chart-v5': typeof DentalChartV5Route
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_authenticated/appointments': typeof AuthenticatedAppointmentsRoute
@@ -298,11 +253,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/dental-chart'
-    | '/dental-chart-enhanced'
-    | '/dental-chart-v2'
-    | '/dental-chart-v4'
-    | '/dental-chart-v5'
     | '/login'
     | '/signup'
     | '/appointments'
@@ -329,11 +279,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/dental-chart'
-    | '/dental-chart-enhanced'
-    | '/dental-chart-v2'
-    | '/dental-chart-v4'
-    | '/dental-chart-v5'
     | '/login'
     | '/signup'
     | '/appointments'
@@ -361,11 +306,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
-    | '/dental-chart'
-    | '/dental-chart-enhanced'
-    | '/dental-chart-v2'
-    | '/dental-chart-v4'
-    | '/dental-chart-v5'
     | '/_auth/login'
     | '/_auth/signup'
     | '/_authenticated/appointments'
@@ -394,11 +334,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
-  DentalChartRoute: typeof DentalChartRoute
-  DentalChartEnhancedRoute: typeof DentalChartEnhancedRoute
-  DentalChartV2Route: typeof DentalChartV2Route
-  DentalChartV4Route: typeof DentalChartV4Route
-  DentalChartV5Route: typeof DentalChartV5Route
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   DocsIndexRoute: typeof DocsIndexRoute
@@ -406,41 +341,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
-    '/dental-chart-v5': {
-      id: '/dental-chart-v5'
-      path: '/dental-chart-v5'
-      fullPath: '/dental-chart-v5'
-      preLoaderRoute: typeof DentalChartV5RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dental-chart-v4': {
-      id: '/dental-chart-v4'
-      path: '/dental-chart-v4'
-      fullPath: '/dental-chart-v4'
-      preLoaderRoute: typeof DentalChartV4RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dental-chart-v2': {
-      id: '/dental-chart-v2'
-      path: '/dental-chart-v2'
-      fullPath: '/dental-chart-v2'
-      preLoaderRoute: typeof DentalChartV2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dental-chart-enhanced': {
-      id: '/dental-chart-enhanced'
-      path: '/dental-chart-enhanced'
-      fullPath: '/dental-chart-enhanced'
-      preLoaderRoute: typeof DentalChartEnhancedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dental-chart': {
-      id: '/dental-chart'
-      path: '/dental-chart'
-      fullPath: '/dental-chart'
-      preLoaderRoute: typeof DentalChartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -683,11 +583,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
-  DentalChartRoute: DentalChartRoute,
-  DentalChartEnhancedRoute: DentalChartEnhancedRoute,
-  DentalChartV2Route: DentalChartV2Route,
-  DentalChartV4Route: DentalChartV4Route,
-  DentalChartV5Route: DentalChartV5Route,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   DocsIndexRoute: DocsIndexRoute,
