@@ -22,7 +22,7 @@ import { format } from 'date-fns';
 
 
 
-export default function CalendarNav(props: { onOpenSettings?: () => void; onOpenCheats?: () => void } = {}) {
+export default function CalendarNav(props: { onOpenSettings?: () => void; onOpenCheats?: () => void; onNewAppointment?: () => void } = {}) {
   const date = () => parseISO(state.viewDate)
 
   /**
@@ -83,6 +83,16 @@ export default function CalendarNav(props: { onOpenSettings?: () => void; onOpen
             class="px-3 py-1.5 text-sm font-medium text-[var(--color-brand-primary)] hover:text-[var(--color-brand-primary-hover)] hover:bg-[var(--color-info-bg)] rounded-lg transition-colors"
           >
             Today
+          </button>
+
+          <button
+            onClick={() => props.onNewAppointment?.()}
+            class="px-4 py-1.5 text-sm font-medium bg-[var(--color-brand-primary)] text-white hover:bg-[var(--color-brand-primary-hover)] rounded-lg transition-colors flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>New Appointment</span>
           </button>
         </div>
 

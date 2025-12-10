@@ -121,6 +121,9 @@ export const actions = {
   remove(id: string) {
     setState('events', (evts) => evts.filter(e => e.id !== id))
   },
+  clearEvents() {
+    setState('events', [])
+  },
   setFilters(filters: Filters) {
     setState('filters', filters)
   },

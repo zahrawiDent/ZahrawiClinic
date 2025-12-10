@@ -53,13 +53,14 @@ import { ROW_H, pxPerMinute, snapMins, SNAP_MIN, absMinsToGridMins, gridMinsToAb
 import { createPreviewState } from './lib/dragPreview'
 import { createAutoScroll } from './lib/autoScroll'
 import { computeMoveWithinDay, computeResizeWithinDay } from './lib/eventUpdates'
+import { updateAppointment, eventToAppointment } from './lib/appointments-integration'
 import type { EventItem } from './lib/types'
 
 type DayViewProps = {
   // Fired when an EventBlock is clicked
-  onEventClick?: (id: string, patch?: Partial<EventItem>) => void
+  onEventClick?: (id: string, event: EventItem) => void
   // Fired when the user clicks or drag-selects empty space to create a new event
-  onSlotClick?: (startISO: string, endISO: string) => void
+  onSlotClick?: (startISO: string, endISO: string, dentistId?: string) => void
 }
 
 export default function DayView(props: DayViewProps) {
@@ -120,6 +121,12 @@ export default function DayView(props: DayViewProps) {
     actions.update(id, patch)
     console.log('##############################')
     console.log('move patch', patch)
+    // Persist to backend
+    const appointmentData = eventToAppointment({ ...ev, ...patch })
+    updateAppointment(id, appointmentData).catch(err => {
+      console.error('Failed to persist move:', err)
+      // Optionally revert on failure
+    })
   }
 
   function resizeEvent(id: string, newEndMins: number) {
@@ -130,6 +137,12 @@ export default function DayView(props: DayViewProps) {
     actions.update(id, patch)
     console.log('##############################')
     console.log('resize patch', patch)
+    // Persist to backend
+    const appointmentData = eventToAppointment({ ...ev, ...patch })
+    updateAppointment(id, appointmentData).catch(err => {
+      console.error('Failed to persist resize:', err)
+      // Optionally revert on failure
+    })
   }
 
   // using shared withPointer from utils/pointer
@@ -187,7 +200,7 @@ export default function DayView(props: DayViewProps) {
           const dispStartAbs = p?.startMins != null ? p.startMins : startAbs
           const dispEndAbs = p?.endMins != null ? p.endMins : endAbs
           const top = absMinsToGridMins(dispStartAbs, startHour()) * pxPerMin
-          const height = Math.max(ROW_H / 2, (dispEndAbs - startAbs) * pxPerMin)
+          const height = Math.max(ROW_H / 2, (dispEndAbs - dispStartAbs) * pxPerMin)
           const lane = laneIndexById.get(id) ?? 0
           const widthPct = 100 / laneCount
           const leftPct = widthPct * lane
@@ -214,7 +227,7 @@ export default function DayView(props: DayViewProps) {
                 transition: 'top 120ms ease, height 120ms ease, left 120ms ease, width 120ms ease',
                 ...({ opacity: dragging() === e.id ? 0 : 1 } as any),
               }}
-              onClick={(id) => props.onEventClick?.(id, { start: e.start, end: e.end })}
+              onClick={(id) => props.onEventClick?.(id, e)}
               onDragMove2D={(_dxPx, _dyPx, ev: any) => {
                 // Convert pointer Y to minutes; navigate days when hitting horizontal edges.
                 if (!isStartSegment) return
@@ -262,7 +275,7 @@ export default function DayView(props: DayViewProps) {
                   ke.preventDefault();
                   return
                 }
-                if (ke.key === 'Enter') { props.onEventClick?.(id, { start: e.start, end: e.end }); ke.preventDefault(); return }
+                if (ke.key === 'Enter') { props.onEventClick?.(id, e); ke.preventDefault(); return }
                 if (ke.key === 'Delete' || ke.key === 'Backspace') { actions.remove(e.id); ke.preventDefault(); return }
                 const s = parseISO(e.start)
                 const en = parseISO(e.end)
@@ -331,7 +344,7 @@ export default function DayView(props: DayViewProps) {
             } else {
               end.setMinutes(en)
             }
-            props.onSlotClick!(start.toISOString(), end.toISOString())
+            props.onSlotClick!(start.toISOString(), end.toISOString(), undefined)
             setSelectRange(null)
           }
           try { (ev.currentTarget as any).setPointerCapture?.((ev as any).pointerId) } catch { }
@@ -356,7 +369,7 @@ export default function DayView(props: DayViewProps) {
           const dispStartAbs = p?.startMins != null ? p.startMins : startAbs
           const dispEndAbs = p?.endMins != null ? p.endMins : endAbs
           const top = absMinsToGridMins(dispStartAbs, startHour()) * pxPerMin
-          const height = Math.max(ROW_H / 2, (dispEndAbs - startAbs) * pxPerMin)
+          const height = Math.max(ROW_H / 2, (dispEndAbs - dispStartAbs) * pxPerMin)
           const rect = (pane as HTMLDivElement).getBoundingClientRect()
           const gutter = 4
           return (
